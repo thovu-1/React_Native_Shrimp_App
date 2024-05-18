@@ -1,13 +1,15 @@
 import { StatusBar } from 'expo-status-bar';
 import { Button, ScrollView, Text, View } from 'react-native';
-import { Link, router} from 'expo-router';
+import { Link, SplashScreen, router} from 'expo-router';
 import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import  MyButton  from './components/mybutton';
 import 'react-native-gesture-handler';
 const HomePage= () => {
     const [isPressed, setIsPressed] = useState(false);
-
+    
+    SplashScreen.preventAutoHideAsync();
+    setTimeout(SplashScreen.hideAsync, 2000);
     // const buttonStyles = [styles.myButton, isPressed ? styles.pressedButton: null]
   return (
     <SafeAreaView className="bg-primary h-full">
