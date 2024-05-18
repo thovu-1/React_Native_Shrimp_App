@@ -5,10 +5,10 @@
     "scheme": "shrimp-project-scheme",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#000000"
     },
@@ -18,7 +18,7 @@
     "android": {
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon"
+        "foregroundImage": "./assets/icon.png"
       },
       "package": "com.thovu.shrimpproject"
     },
