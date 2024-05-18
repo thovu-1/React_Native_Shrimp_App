@@ -13,14 +13,18 @@
       "backgroundColor": "#000000"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     },
     "android": {
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png"
       },
-      "package": "com.thovu.shrimpproject"
+      "package": "com.thovu.shrimpproject",
+      "runtimeVersion": "1.0.0"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -35,6 +39,9 @@
       "eas": {
         "projectId": "5c4400f4-cd14-4c19-9b74-34853a042331"
       }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/5c4400f4-cd14-4c19-9b74-34853a042331"
     }
   }
 }
