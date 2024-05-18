@@ -1,9 +1,10 @@
-import { View, Text, ScrollView, StatusBar, Dimensions } from 'react-native'
+import { View, Text, ScrollView, StatusBar, Dimensions, Alert, Platform } from 'react-native'
 import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import FormField from '../components/formfield'
 import MyButton from '../components/mybutton'
 import { Link } from 'expo-router'
+import axios, { AxiosError } from 'axios'
 
 const SignIn = () => {
     const [form, setForm] = React.useState({
@@ -12,9 +13,27 @@ const SignIn = () => {
     })
     const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-    const submit = () => {
+    async function submit () {
+      if ( form.email === "" || form.password === "") {
+        Alert.alert("Error", "Please fill in all fields");
+      }
 
+      try{
+        await axios.post("http://localhost:8000/api/login",{
+          email: form.email, 
+          password: form.password,
+          device_name: `${Platform.OS} ${Platform.Version}`
+        }, {
+          headers: {
+            Accept: "application/json",
+          },
+        })
+      } catch (e){
+        // Alert.alert("Error", e.response?.data.status);
+        console.log(e);
+      } 
     }
+
   return (
     <SafeAreaView className="bg-primary h-full">
       <ScrollView>
