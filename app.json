@@ -22,6 +22,13 @@
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png"
+        
+      },
+      "icon": "./assets/icon.png",
+      "splash": {
+        "image": "./assets/splash.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#000000"
       },
       "package": "com.thovu.shrimpproject",
       "runtimeVersion": "1.0.0"
