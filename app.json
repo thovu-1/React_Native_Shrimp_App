@@ -1,23 +1,24 @@
 {
   "expo": {
     "name": "ShrimpProject",
-    "slug": "ShrimpProject",
+    "slug": "shrimpproject",
     "scheme": "shrimp-project-scheme",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/AppIcon3.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#000000"
     },
     "ios": {
       "supportsTablet": true
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/AppIcon3.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.thovu.shrimpproject"
@@ -27,6 +28,14 @@
     },
     "plugins": [
       "expo-router"
-    ]
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "5c4400f4-cd14-4c19-9b74-34853a042331"
+      }
+    }
   }
 }

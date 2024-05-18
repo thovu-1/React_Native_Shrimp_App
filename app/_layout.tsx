@@ -1,11 +1,11 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import { Stack } from 'expo-router'
-import { RealmProvider } from '@realm/react'
+
 
 const RootLayout = () => {
   return (
-    <RealmProvider>
+    <>
 
       <Stack screenOptions={{
         headerStyle:{
@@ -19,7 +19,7 @@ const RootLayout = () => {
           {/* <Stack.Screen name='HomePage' options={{headerShown:false, headerTitle:"test"}}/> */}
       </Stack>
 
-    </RealmProvider>
+    </>
   )
 }
 
