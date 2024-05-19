@@ -1,30 +1,44 @@
 import { StatusBar } from 'expo-status-bar';
-import { Button, ScrollView, Text, View } from 'react-native';
+import { Button, KeyboardAvoidingView, ScrollView, Text, View } from 'react-native';
 import { Link, SplashScreen, router} from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import  MyButton  from './components/mybutton';
 import 'react-native-gesture-handler';
+import { User, onAuthStateChanged } from 'firebase/auth';
+import { FIREBASE_AUTH } from '../FirebaseConfig';
 const HomePage= () => {
-    const [isPressed, setIsPressed] = useState(false);
-
+    const [user, setuser] = useState<User | null>(null);
+    useEffect(() => {
+      onAuthStateChanged(FIREBASE_AUTH, (user) => {
+        console.log('user', user);
+        console.log("\n\n\n\n\n\n")
+        setuser(user)
+        if(user){
+          router.push('/tanks')
+        } 
+        else {
+          router.push('/sign-in')
+        }
+      });
+    }, [])
+    
     SplashScreen.preventAutoHideAsync();
     setTimeout(SplashScreen.hideAsync, 2000);
     // const buttonStyles = [styles.myButton, isPressed ? styles.pressedButton: null]
   return (
-    <SafeAreaView className="bg-primary h-full">
+    <KeyboardAvoidingView className="bg-primary h-full">
       <ScrollView contentContainerStyle={{height:'100%'}}>
       <View className="w-full flex justify-center items-center h-full px-4 ">
           <Text className='text-3xl text-white '>Welcome to the shrimp shop</Text>
           <MyButton
             title="Continue with Email"
             handlePress={() => router.push("/sign-in")}
-            containerStyles="w-full mt-7"
-          />
+            containerStyles="w-full mt-7" textStyles={undefined} isLoading={undefined}          />
         <StatusBar style="light"  backgroundColor='#161630'/>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }
 

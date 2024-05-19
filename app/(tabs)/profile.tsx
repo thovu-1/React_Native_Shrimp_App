@@ -1,17 +1,31 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import { ScrollView, StyleSheet, Text, View } from 'react-native'
+import React, { useEffect } from 'react'
+import MyButton from '../components/mybutton'
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig'
+import { addDoc } from 'firebase/firestore'
 
 const profile = () => {
+
+  useEffect(() => {
+    // addDoc(collection(FIRESTORE_DB, ''))
+  
+   
+  }, [])
+  
+
   return (
-    <View style={styles.main_container}>
-      <View style={styles.container}>
-        <Text>My Profile</Text>
-        <Text>Username</Text>
+    <ScrollView>
+      <View style={styles.main_container}>
+        <View style={styles.container}>
+          <Text>My Profile</Text>
+          <Text>Username</Text>
+        </View>
+        <View style={styles.container}>
+          <MyButton title="Sign Out" handlePress={() => FIREBASE_AUTH.signOut()}  containerStyles="mt-7"
+            />
+        </View>
       </View>
-      <View style={styles.container}>
-        
-      </View>
-    </View>
+    </ScrollView>
   )
 }
 

@@ -29,5 +29,5 @@ export const FIREBASE_APP = initializeAuth(app, {
 });
 
 export const FIREBASE_AUTH = getAuth(app);
-export const FIRESTORE_DB = getAuth(app);
+export const FIRESTORE_DB = getFirestore(app);
 // const analytics = getAnalytics(FIREBASE_APP);

@@ -20,7 +20,7 @@ const TabsLayout = () => {
         <Tabs.Screen name="profile" 
         options={{
             title: "Profile",
-            headerShown: true,
+            headerShown: false,
             tabBarIcon: ({color}) => <FontAwesome name="user-circle" size={24} color={color}/>,
             
         }}/>
@@ -28,7 +28,7 @@ const TabsLayout = () => {
         <Tabs.Screen name="tanks" 
         options={{
             title: "Your Tanks",
-            headerShown: true,
+            headerShown: false,
             href:'/tanks',
             tabBarActiveTintColor: 'purple',
             tabBarIcon: ({color}) => <MaterialCommunityIcons name="fishbowl-outline" size={24} color={color}/>,
@@ -38,7 +38,7 @@ const TabsLayout = () => {
         <Tabs.Screen name="guides" 
         options={{
             title: "Guides",
-            headerShown: true,
+            headerShown: false,
             tabBarActiveTintColor: 'orange',
             tabBarIcon: ({ color }) => <FontAwesome6 size={28} name="shrimp" color={color} />,
         

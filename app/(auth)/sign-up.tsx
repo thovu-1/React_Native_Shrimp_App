@@ -1,4 +1,4 @@
-import { Alert, Dimensions, ScrollView, StyleSheet, Text, ToastAndroid, View } from 'react-native'
+import { Alert, Dimensions, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, ToastAndroid, View } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import FormField from '../components/formfield'
@@ -10,7 +10,6 @@ import { FIREBASE_AUTH } from '../../FirebaseConfig';
 
 const SignUp = () => {
   // const { setUser, setIsLogged } = useGlobalContext();
-
   const [isSubmitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     username: "",
@@ -26,8 +25,8 @@ const SignUp = () => {
 
     setSubmitting(true);
     try {
-      const result = await createUserWithEmailAndPassword(auth, form.email, form.password);
-      console.log(result);
+      const response = await createUserWithEmailAndPassword(auth, form.email, form.password);
+      console.log(response);
       ToastAndroid.show("User created successfully", ToastAndroid.SHORT);
     } catch (error) {
       Alert.alert("Sign in failed!", error.message);
@@ -36,8 +35,10 @@ const SignUp = () => {
     }
   };
   return (
-    <SafeAreaView className="bg-primary h-full">
+    <KeyboardAvoidingView className="bg-primary h-full">
       <ScrollView>
+
+  
         <View
           className="w-full flex justify-center h-full px-4 my-6"
           style={{
@@ -53,30 +54,26 @@ const SignUp = () => {
             title="Username"
             value={form.username}
             handleChangeText={(e) => setForm({ ...form, username: e })}
-            otherStyles="mt-10"
-          />
+            otherStyles="mt-10" placeholder={'Enter a username'}          />
 
           <FormField
             title="Email"
             value={form.email}
             handleChangeText={(e) => setForm({ ...form, email: e })}
             otherStyles="mt-7"
-            keyboardType="email-address"
-          />
+            keyboardType="email-address" placeholder={'Enter your email'}          />
 
           <FormField
             title="Password"
             value={form.password}
             handleChangeText={(e) => setForm({ ...form, password: e })}
-            otherStyles="mt-7"
-          />
+            otherStyles="mt-7" placeholder={undefined}          />
 
           <MyButton
             title="Sign Up"
             handlePress={submit}
             containerStyles="mt-7"
-            isLoading={isSubmitting}
-          />
+            isLoading={isSubmitting} textStyles={undefined}          />
 
           <View className="flex justify-center pt-5 flex-row gap-2">
             <Text className="text-lg text-gray-100 font-pregular">
@@ -91,7 +88,7 @@ const SignUp = () => {
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </KeyboardAvoidingView>
   )
 }
 

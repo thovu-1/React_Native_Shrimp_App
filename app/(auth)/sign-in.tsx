@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, StatusBar, Dimensions, Alert, Platform } from 'react-native'
+import { View, Text, ScrollView, StatusBar, Dimensions, Alert, Platform, KeyboardAvoidingView } from 'react-native'
 import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import FormField from '../components/formfield'
@@ -24,7 +24,7 @@ const SignIn = () => {
 
       setIsSubmitting(true);
       try{
-        const response = await auth.signInWithEmailAndPassword(auth, form.email, form.password);
+        const response = await signInWithEmailAndPassword(auth, form.email, form.password);
         console.log(response);
       } catch (e){
         console.log(e);
@@ -35,7 +35,7 @@ const SignIn = () => {
     }
 
   return (
-    <SafeAreaView className="bg-primary h-full">
+    <KeyboardAvoidingView className="bg-primary h-full" behavior='padding'>
       <ScrollView>
         <View  className="w-full flex justify-center h-full px-4 my-6"
           style={{
@@ -50,12 +50,12 @@ const SignIn = () => {
                   value={form.email}
                   handleChangeText={(text: string) => setForm({ ...form, email: text })}
                   otherStyles="mt-7"
-                  keyboardType="email-address" placeholder={undefined}                />
+                  keyboardType="email-address" placeholder={undefined}/>
 
             <FormField 
                   title="Password"
                   value={form.password}
-                  handleChangeText={(text: string) => setForm({ ...form, password: text })} placeholder={undefined}  otherStyles="mt-7"                />
+                  handleChangeText={(text: string) => setForm({ ...form, password: text })} placeholder={undefined}  otherStyles="mt-7"/>
 
             <MyButton 
                   title="Sign In"
@@ -70,7 +70,7 @@ const SignIn = () => {
             </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </KeyboardAvoidingView>
   )
 }
 
