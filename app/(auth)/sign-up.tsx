@@ -1,10 +1,12 @@
-import { Alert, Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Alert, Dimensions, ScrollView, StyleSheet, Text, ToastAndroid, View } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import FormField from '../components/formfield'
 
 import { Link, router } from 'expo-router';
 import MyButton from '../components/mybutton';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { FIREBASE_AUTH } from '../../FirebaseConfig';
 
 const SignUp = () => {
   // const { setUser, setIsLogged } = useGlobalContext();
@@ -15,24 +17,23 @@ const SignUp = () => {
     email: "",
     password: "",
   });
-
+  const auth = FIREBASE_AUTH;
+  
   const submit = async () => {
     if (form.username === "" || form.email === "" || form.password === "") {
       Alert.alert("Error", "Please fill in all fields");
     }
 
-    // setSubmitting(true);
-    // try {
-    //   const result = await createUser(form.email, form.password, form.username);
-    //   setUser(result);
-    //   setIsLogged(true);
-
-    //   router.replace("/home");
-    // } catch (error) {
-    //   Alert.alert("Error", error.message);
-    // } finally {
-    //   setSubmitting(false);
-    // }
+    setSubmitting(true);
+    try {
+      const result = await createUserWithEmailAndPassword(auth, form.email, form.password);
+      console.log(result);
+      ToastAndroid.show("User created successfully", ToastAndroid.SHORT);
+    } catch (error) {
+      Alert.alert("Sign in failed!", error.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
   return (
     <SafeAreaView className="bg-primary h-full">

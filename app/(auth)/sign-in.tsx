@@ -4,13 +4,18 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import FormField from '../components/formfield'
 import MyButton from '../components/mybutton'
 import { Link } from 'expo-router'
-import axios, { AxiosError } from 'axios'
+
+import { FIREBASE_AUTH } from '../../FirebaseConfig'
+import { signInWithEmailAndPassword } from 'firebase/auth'
 
 const SignIn = () => {
     const [form, setForm] = React.useState({
         email:'',
         password:''
     })
+
+    const auth = FIREBASE_AUTH;
+
     const [isSubmitting, setIsSubmitting] = React.useState(false);
 
     async function submit () {
@@ -18,20 +23,16 @@ const SignIn = () => {
         Alert.alert("Error", "Please fill in all fields");
       }
 
+      setIsSubmitting(true);
       try{
-        await axios.post("http://localhost:8000/api/login",{
-          email: form.email, 
-          password: form.password,
-          device_name: `${Platform.OS} ${Platform.Version}`
-        }, {
-          headers: {
-            Accept: "application/json",
-          },
-        })
+        const response = await auth.signInWithEmailAndPassword(auth, form.email, form.password);
+        console.log(response);
       } catch (e){
-        // Alert.alert("Error", e.response?.data.status);
         console.log(e);
-      } 
+        Alert.alert("Sign in failed ", e.message);
+      } finally {
+        setIsSubmitting(false);
+      }
     }
 
   return (

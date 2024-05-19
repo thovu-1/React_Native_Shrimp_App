@@ -7,7 +7,7 @@ import  MyButton  from './components/mybutton';
 import 'react-native-gesture-handler';
 const HomePage= () => {
     const [isPressed, setIsPressed] = useState(false);
-    
+
     SplashScreen.preventAutoHideAsync();
     setTimeout(SplashScreen.hideAsync, 2000);
     // const buttonStyles = [styles.myButton, isPressed ? styles.pressedButton: null]
