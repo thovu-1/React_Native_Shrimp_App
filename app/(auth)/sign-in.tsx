@@ -13,7 +13,6 @@ const SignIn = () => {
         email:'',
         password:''
     })
-
     const auth = FIREBASE_AUTH;
 
     const [isSubmitting, setIsSubmitting] = React.useState(false);
