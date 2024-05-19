@@ -25,7 +25,9 @@ module.exports = {
         },
         pastelblue:{
           DEFAULT: "#A7C7E7",
-        }
+        },
+        primarylight:"#5E8D9F"
+        
       },
     },
   },

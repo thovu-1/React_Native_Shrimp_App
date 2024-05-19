@@ -39,11 +39,28 @@ const MyTanks = () => {
           }}>
   
           <FormField 
-          title='Tank Name' 
-          value={tankName}  
-          placeholder={undefined} 
-          handleChangeText={(e:string)=> setTankName(e)}  
-          otherStyles='mt-7 text-black'/>
+                title='Tank Name'
+                value={tankName}
+                placeholder={undefined}
+                handleChangeText={(e: string) => setTankName(e)}
+                otherStyles='mt-20 ' textStyles='text-black'/>
+
+          <View className='flex-row'>
+
+            <FormField 
+                  title='Tank Size'
+                  value={tankSize}
+                  placeholder={undefined}
+                  handleChangeText={(e: string) => setTankSize(e)}
+                  otherStyles='mt-7 w-full ' textStyles='text-black'/>
+          </View>
+
+          <FormField 
+                title='Tank Type'
+                value={tankType}
+                placeholder={undefined}
+                handleChangeText={(e: string) => setTankType(e)}
+                otherStyles='mt-7 ' textStyles='text-black'/>
 
           <View className="mb-8 mt-auto">
             <MyButton title="Add Tank" handlePress={clearFields} containerStyles={undefined} textStyles={undefined} isLoading={undefined}/>
