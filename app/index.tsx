@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { Button, KeyboardAvoidingView, ScrollView, Text, View } from 'react-native';
-import { Link, SplashScreen, router} from 'expo-router';
+import { Link, SplashScreen, router, useNavigation} from 'expo-router';
 import { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import  MyButton  from './components/mybutton';
@@ -9,13 +9,14 @@ import { User, onAuthStateChanged } from 'firebase/auth';
 import { FIREBASE_AUTH } from '../FirebaseConfig';
 const HomePage= () => {
     const [user, setuser] = useState<User | null>(null);
+    const navigation = useNavigation();
     useEffect(() => {
       onAuthStateChanged(FIREBASE_AUTH, (user) => {
         console.log('user', user);
         console.log("\n\n\n\n\n\n")
         setuser(user)
         if(user){
-          router.push('/tanks')
+          router.replace('/tanks')
         } 
         else {
           router.push('/sign-in')
@@ -30,7 +31,7 @@ const HomePage= () => {
     <KeyboardAvoidingView className="bg-primary h-full">
       <ScrollView contentContainerStyle={{height:'100%'}}>
       <View className="w-full flex justify-center items-center h-full px-4 ">
-          <Text className='text-3xl text-white '>Welcome to the shrimp shop</Text>
+          <Text className='text-3xl text-white '>Welcome to the Shrimp Tank</Text>
           <MyButton
             title="Continue with Email"
             handlePress={() => router.push("/sign-in")}

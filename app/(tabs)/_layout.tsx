@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native'
+import { View, Text, Image } from 'react-native'
 import React from 'react'
 import { Tabs } from 'expo-router'
 import { Colors } from 'react-native/Libraries/NewAppScreen'
@@ -12,16 +12,17 @@ const TabsLayout = () => {
     <Tabs screenOptions={{
         tabBarActiveTintColor: 'blue',
         tabBarStyle: {
-            backgroundColor: 'white',
+            backgroundColor: '#161630',
             borderTopWidth:1,
-            
-        }
+            height:65,
+        },
     }}>
         <Tabs.Screen name="profile" 
         options={{
-            title: "Profile",
+            title: 'Profile',
             headerShown: false,
-            tabBarIcon: ({color}) => <FontAwesome name="user-circle" size={24} color={color}/>,
+            tabBarActiveTintColor: 'green',
+            tabBarIcon: ({color}) => <FontAwesome name="user-circle" size={35} color={color}/>,
             
         }}/>
 
@@ -31,7 +32,7 @@ const TabsLayout = () => {
             headerShown: false,
             href:'/tanks',
             tabBarActiveTintColor: 'purple',
-            tabBarIcon: ({color}) => <MaterialCommunityIcons name="fishbowl-outline" size={24} color={color}/>,
+            tabBarIcon: ({color}) => <MaterialCommunityIcons name="fishbowl-outline" size={35} color={color}/>,
             
         }}/>
 
@@ -40,7 +41,7 @@ const TabsLayout = () => {
             title: "Guides",
             headerShown: false,
             tabBarActiveTintColor: 'orange',
-            tabBarIcon: ({ color }) => <FontAwesome6 size={28} name="shrimp" color={color} />,
+            tabBarIcon: ({ color }) => <FontAwesome6 size={35} name="shrimp" color={color} />,
         
         }}/>
     </Tabs>

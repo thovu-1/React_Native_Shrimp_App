@@ -3,16 +3,18 @@ import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import FormField from '../components/formfield'
 import MyButton from '../components/mybutton'
-import { Link } from 'expo-router'
+import { Link, useNavigation } from 'expo-router'
 
 import { FIREBASE_AUTH } from '../../FirebaseConfig'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 
 const SignIn = () => {
+  // const { setUser, setIsLogged } = useGlobalContext();
     const [form, setForm] = React.useState({
         email:'',
         password:''
     })
+    const navigation = useNavigation();
     const auth = FIREBASE_AUTH;
 
     const [isSubmitting, setIsSubmitting] = React.useState(false);

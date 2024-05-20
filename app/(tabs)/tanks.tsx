@@ -3,59 +3,76 @@ import React, { useEffect, useState } from 'react'
 import MyButton from '../components/mybutton'
 import FormField from '../components/formfield'
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig'
-import { addDoc, collection } from 'firebase/firestore'
+import { addDoc, collection, onSnapshot } from 'firebase/firestore'
 import DropDownPicker from 'react-native-dropdown-picker'
 import { router } from 'expo-router'
 
 const MyTanks = () => {
-  enum MeasurementType {
-    Metric = 1,
-    Imperial,
-  }
+  // useStates for creating tanks
   const [isAddingTank, setIsAddingTank] = useState(false)
   const [tankName, setTankName] = useState('');
   const [tankSize, setTankSize] = useState('');
   const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState('L')
+  const [selected, setSelected] = useState('G')
   const [measurmentTypes, setMeasurmentTypes] = useState([
     {label: "Liters", value: 'L'},
     {label: "Gallons", value: 'G'},
   ]);
 
   
-    async function handlePress(){
-      if(tankName === "" || tankSize === ""){
-        Alert.alert("Error", "Please fill in all fields");
-      } else {
-        try {
-          const doc = await addDoc(collection(FIRESTORE_DB, 'tanks'), {
-            name: tankName,
-            size: tankSize,
-            measurmentType: selected,
-          });
-          console.log("DOC");
-          console.log(doc);
-        }catch(e){
-          console.log(e);
-        }
-        
-        clearFields();
-        Alert.alert("Tank added successfully");
-        setIsAddingTank(false);
+
+  // useStates for displaying tanks
+  const [userTanks, setUserTanks] = useState([]);
+  useEffect(() => {
+    const todoRef = collection(FIRESTORE_DB, 'tanks');
+
+    const subscriber = onSnapshot(todoRef, {
+      next: (snapshot) => {
+        console.log("UPDATED");
+
+        const tanks: any = [];
+        snapshot.forEach((doc) => {
+          tanks.push({...doc.data(), id: doc.id });
+        });
+        setUserTanks(tanks);
+      },
+    })
+    return () => subscriber();
+  }, [])
+  
+  async function handlePress(){
+    if(tankName === "" || tankSize === ""){
+      Alert.alert("Error", "Please fill in all fields");
+    } else {
+      try {
+        const doc = await addDoc(collection(FIRESTORE_DB, 'tanks'), {
+          name: tankName,
+          size: tankSize,
+          measurmentType: selected,
+        });
+        console.log("DOC");
+        console.log(doc);
+      }catch(e){
+        console.log(e);
       }
+      
+      clearFields();
+      Alert.alert("Tank added successfully");
+      setIsAddingTank(false);
     }
-    function clearFields(){
-      setTankSize('');
-      setTankName('');
-      setIsAddingTank(false)
-    }
+  }
+  function clearFields(){
+    setTankSize('');
+    setTankName('');
+    setIsAddingTank(false)
+  }
     
   return (
     <>
     { 
     //adding tank view here 
     isAddingTank ? (
-      <KeyboardAvoidingView className="bg-pastelblue h-full" behavior='padding' >
+      <KeyboardAvoidingView className="bg-offwhite h-full" behavior='padding' >
         
         <View className="w-full flex justify-center h-full px-4 my-6"  style={{
             minHeight: Dimensions.get("window").height - 100,
@@ -98,31 +115,20 @@ const MyTanks = () => {
     ) 
     // normal view here
     : (
-      <KeyboardAvoidingView className="bg-pastelblue h-full" behavior='padding' >
-        <View className=" w-full flex justify-center h-full px-4 my-6"  style={{
+      <KeyboardAvoidingView className="bg-offwhite h-full" behavior='padding' >
+        <View className=" w-full flex justify-center h-full px-4 "  style={{
           minHeight: Dimensions.get("window").height - 100,
         }}>
+          <View className='justify-between items-start flex-row mb-4 '>
+            <Text className='text-3xl font-bold text-black mt-10'>Your Tanks</Text>
+          </View>
           <View>
-              <FlatList
-                data={[{id:1}, {id:2}, {id:3}]}
-                keyExtractor={(item) => item.$id}
-                renderItem={({item}) =>(
-                  <Text className="text-3xl" key={item.id}>{item.id}</Text>
-                )}
-                ListHeaderComponent={()=>(
-                  <View className='my-1 px-4 space-y-6'>
-                    <View className="justify-between items-start flex-row mb-6">
-                        <Text className="text-2xl font-semibold text-black mt-10 font-psemibold">
-                          Your Tanks
-                        </Text>
-                        <Image source={require('../../assets/otherpics/AppIcon4.png')} className="w-9 h-10 mt-8" resizeMode='contain'/>
-                    </View>
-                  </View>
-                )}
-              />
+            {userTanks.map(tank => (
+              <Text key={tank.id} className='text-2xl font-semibold text-black mt-10 font-psemibold'>{tank.name}</Text>
+            ))}
           </View>
           
-          <MyButton title="Add Tank" handlePress={()=> setIsAddingTank(true)} containerStyles="mt-7 mb-8 mt-auto" textStyles={undefined} isLoading={undefined}/>
+          <MyButton title="Add Tank" handlePress={()=> setIsAddingTank(true)} containerStyles="mb-12 mt-auto" textStyles={'font-semibold text-lg'} isLoading={undefined}/>
 
 
         </View>
@@ -135,6 +141,7 @@ const MyTanks = () => {
 
 export default MyTanks
 
+// StyleSheet is redundant with NativeWind, however we need to use it for the drop down picker.
 const styles = StyleSheet.create({
     main_container:{
       flex:1,
