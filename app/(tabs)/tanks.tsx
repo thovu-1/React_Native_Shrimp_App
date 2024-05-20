@@ -1,9 +1,11 @@
-import { Button, Dimensions, FlatList, Image, KeyboardAvoidingView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useState } from 'react'
+import { Alert, Button, Dimensions, FlatList, Image, KeyboardAvoidingView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import MyButton from '../components/mybutton'
 import FormField from '../components/formfield'
-import { FIRESTORE_DB } from '../../FirebaseConfig'
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig'
 import { addDoc, collection } from 'firebase/firestore'
+import DropDownPicker from 'react-native-dropdown-picker'
+import { router } from 'expo-router'
 
 const MyTanks = () => {
   enum MeasurementType {
@@ -12,21 +14,42 @@ const MyTanks = () => {
   }
   const [isAddingTank, setIsAddingTank] = useState(false)
   const [tankName, setTankName] = useState('');
-  const [tankType, setTankType] = useState('');
   const [tankSize, setTankSize] = useState('');
-  const [measurmentType, setMeasurmentType] = useState('');
+  const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState('L')
+  const [measurmentTypes, setMeasurmentTypes] = useState([
+    {label: "Liters", value: 'L'},
+    {label: "Gallons", value: 'G'},
+  ]);
+
+  
     async function handlePress(){
-      // const doc = await addDoc(collection(FIRESTORE_DB, 'tanks'), {
-      //   name: "Tank 1",
-      //   type: "",
-      //   size: "100",
-      // });
+      if(tankName === "" || tankSize === ""){
+        Alert.alert("Error", "Please fill in all fields");
+      } else {
+        try {
+          const doc = await addDoc(collection(FIRESTORE_DB, 'tanks'), {
+            name: tankName,
+            size: tankSize,
+            measurmentType: selected,
+          });
+          console.log("DOC");
+          console.log(doc);
+        }catch(e){
+          console.log(e);
+        }
+        
+        clearFields();
+        Alert.alert("Tank added successfully");
+        setIsAddingTank(false);
+      }
     }
     function clearFields(){
-      setTankType('');
       setTankSize('');
       setTankName('');
+      setIsAddingTank(false)
     }
+    
   return (
     <>
     { 
@@ -45,26 +68,30 @@ const MyTanks = () => {
                 handleChangeText={(e: string) => setTankName(e)}
                 otherStyles='mt-20 ' textStyles='text-black'/>
 
-          <View className='flex-row'>
-
+          <View className='flex flex-row items-center'>
             <FormField 
                   title='Tank Size'
                   value={tankSize}
                   placeholder={undefined}
                   handleChangeText={(e: string) => setTankSize(e)}
-                  otherStyles='mt-7 w-full ' textStyles='text-black'/>
+                  otherStyles='mt-7 w-60 pr-10 ' textStyles='text-black'/>
+
+            <DropDownPicker
+              open={open}
+              value={selected}
+              items={measurmentTypes}
+              setOpen={setOpen}
+              setValue={setSelected}
+              setItems={setMeasurmentTypes}
+              style={styles.dropDownStyling}
+              containerStyle={{width:'40%', paddingRight:40}}
+            />
+            
           </View>
 
-          <FormField 
-                title='Tank Type'
-                value={tankType}
-                placeholder={undefined}
-                handleChangeText={(e: string) => setTankType(e)}
-                otherStyles='mt-7 ' textStyles='text-black'/>
-
           <View className="mb-8 mt-auto">
-            <MyButton title="Add Tank" handlePress={clearFields} containerStyles={undefined} textStyles={undefined} isLoading={undefined}/>
-            <MyButton title="Cancel" handlePress={() => setIsAddingTank(false)} containerStyles='mt-4' textStyles={undefined} isLoading={undefined}/>
+            <MyButton title="Add Tank" handlePress={handlePress} containerStyles={undefined} textStyles={undefined} isLoading={undefined}/>
+            <MyButton title="Cancel" handlePress={clearFields} containerStyles='mt-4' textStyles={undefined} isLoading={undefined}/>
           </View>
         </View>
       </KeyboardAvoidingView>
@@ -120,4 +147,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
       },
+    dropDownStyling:{
+      width: '100%',
+      height: 64, // 16 * 4 (px-4) = 64
+      borderRadius: 16, // 2 * 8 (rounded-2xl) = 16
+      borderWidth: 2,
+      borderColor: '#000',
+      backgroundColor: '#fff',
+      marginTop:65,
+    }
   })
