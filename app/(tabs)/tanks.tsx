@@ -1,4 +1,4 @@
-import { Alert, Button, Dimensions, FlatList, Image, KeyboardAvoidingView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Alert, Button, Dimensions, FlatList, Image, KeyboardAvoidingView, ListRenderItemInfo, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import MyButton from '../components/mybutton'
 import FormField from '../components/formfield'
@@ -6,6 +6,9 @@ import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig'
 import { addDoc, collection, onSnapshot } from 'firebase/firestore'
 import DropDownPicker from 'react-native-dropdown-picker'
 import { router } from 'expo-router'
+import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated'
+import { Tank } from '../getData'
+import { ListItem } from '../components/ListItem'
 
 const MyTanks = () => {
   // useStates for creating tanks
@@ -19,10 +22,25 @@ const MyTanks = () => {
     {label: "Gallons", value: 'G'},
   ]);
 
-  
-
   // useStates for displaying tanks
   const [userTanks, setUserTanks] = useState([]);
+  const [expanded, setExpanded] = useState(false);
+  
+  const onTankPressed = () => {
+    setExpanded(!expanded);
+  }
+
+  const animatedStyle = useAnimatedStyle(()=>{
+    const animatedHeight = expanded ? withTiming(200) : withTiming(0)
+    return {
+      height: animatedHeight
+    }
+  });
+
+  // const renderTank = ({tank}: ListRenderItemInfo<Tank>) => {
+  //   return <ListItem item={tank}/>
+  // }
+
   useEffect(() => {
     const todoRef = collection(FIRESTORE_DB, 'tanks');
 
@@ -124,7 +142,16 @@ const MyTanks = () => {
           </View>
           <View>
             {userTanks.map(tank => (
-              <Text key={tank.id} className='text-2xl font-semibold text-black mt-10 font-psemibold'>{tank.name}</Text>
+              
+              <View>
+                <TouchableOpacity onPress={onTankPressed}>
+                  <Text key={tank.id} className='text-2xl font-semibold text-black mt-10 font-psemibold'>{tank.name}</Text>
+                </TouchableOpacity>
+                {/* <Animated.View style={animatedStyle}>
+                    <Text>test</Text>
+                  </Animated.View>    */}
+              </View>
+
             ))}
           </View>
           
