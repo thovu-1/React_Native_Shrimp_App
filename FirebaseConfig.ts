@@ -5,6 +5,7 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
+import { getStorage } from "firebase/storage";
 // import AsyncStorage from '@react-native-async-storage/async-storage'
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -19,7 +20,7 @@ const firebaseConfig = {
   storageBucket: "shirmp-project-backend.appspot.com",
   messagingSenderId: "790979789151",
   appId: "1:790979789151:web:47034edd2bc77ba2cbb6ea",
-  measurementId: "G-6998NVF9KD"
+  measurementId: "G-6998NVF9KD",
 };
 
 // Initialize Firebase
@@ -28,6 +29,7 @@ export const FIREBASE_APP = initializeAuth(app, {
   persistence: getReactNativePersistence(ReactNativeAsyncStorage)
 });
 
+export const FIREBASE_STOREAGE_BUCKET = getStorage(app)
 export const FIREBASE_AUTH = getAuth(app);
 export const FIRESTORE_DB = getFirestore(app);
 // const analytics = getAnalytics(FIREBASE_APP);

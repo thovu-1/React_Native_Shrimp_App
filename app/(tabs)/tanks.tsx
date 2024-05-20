@@ -9,6 +9,7 @@ import { router } from 'expo-router'
 import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import Card from '../components/Card'
 import { SimpleLineIcons } from '@expo/vector-icons';
+import { Tank } from '../interfaces/interfaces'
 const MyTanks = () => {
 
   const headerHeight = Dimensions.get("window").height - Dimensions.get("window").height - 100
@@ -23,9 +24,10 @@ const MyTanks = () => {
     {label: "Gallons", value: 'G'},
   ]);
   const [shrimps, setShrimps] = useState('');
+  const [additionalInfo, setAdditionalInfo] = useState('');
 
   // useStates for displaying tanks
-  const [userTanks, setUserTanks] = useState([]);
+  const [userTanks, setUserTanks] = useState<Tank[]>([]);
   const [expanded, setExpanded] = useState(false);
   const [currentID, setCurrentID] = useState<string|null>(null)
   const toggleExpanded = (id:any) =>{
@@ -140,7 +142,7 @@ const MyTanks = () => {
     // normal view here
     : (
 
-        <View className=" w-full flex justify-center h-full px-4 "  style={{
+        <View className=" w-full flex h-full px-4 "  style={{
           minHeight: Dimensions.get("window").height - 100,
         }}>
           <View className='justify-between items-start flex-row mb-4 '>
@@ -149,17 +151,17 @@ const MyTanks = () => {
           <View>
             {userTanks.map(tank => (
               
-              <View key={tank.id}>
+              <View  style={styles.card} key={tank.id}>
                 <TouchableOpacity onPress={()=> toggleExpanded(tank.id)}>
-                  <View className='flex-row items-center '>
-                  <Text className='text-2xl font-semibold text-black mt-7 font-psemibold'>{tank.name}</Text>
-                  <SimpleLineIcons style={{marginLeft:10, marginTop:30}}name={expanded && currentID === tank.id ? "arrow-down":"arrow-left"} size={24} color="black" />
+                  <View className='flex flex-row justify-between'>
+                  <Text className='text-2xl items-center font-semibold text-black pt-4 pb-4 font-psemibold '>{tank.name}</Text>
+                  <SimpleLineIcons style={{marginRight:15, verticalAlign:'middle'}}name={expanded && currentID === tank.id ? "arrow-down":"arrow-left"} size={24} color="black" />
                   </View>
                   {expanded && currentID === tank.id ? (
-                    <View className='flex flex-col items-start mb-4 '>
+                    <View className='flex flex-col items-start mb-4'>
 
                       <Text className='break-words'>{tank.name}</Text>
-                      <Text>Tank Size: {tank.size}{tank.measurmentType}</Text>
+                      <Text>Tank Size: {tank.size}{tank.measurmentUnit}</Text>
                       <Text>Shrimps: {tank.shrimps}</Text>
 
                     </View>
@@ -187,7 +189,7 @@ const MyTanks = () => {
 
 export default MyTanks
 
-// StyleSheet is redundant with NativeWind, however we need to use it for the drop down picker.
+// StyleSheet is redundant with NativeWind, however we need to use it for the drop down picker and card for elevation.
 const styles = StyleSheet.create({
     main_container:{
       flex:1,
@@ -208,5 +210,16 @@ const styles = StyleSheet.create({
       borderColor: '#000',
       backgroundColor: '#fff',
       marginTop:65,
-    }
+    },
+    card: {
+      backgroundColor: '#FCFBF4',
+      borderRadius: 8,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 8, // For Android shadow
+      marginVertical:4,
+      paddingLeft: 10,
+    },
   })
