@@ -19,7 +19,7 @@ const HomePage= () => {
           router.replace('/tanks')
         } 
         else {
-          router.push('/sign-in')
+          router.replace('/sign-in')
         }
       });
     }, [])

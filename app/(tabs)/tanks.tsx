@@ -1,4 +1,4 @@
-import { Alert, Button, Dimensions, FlatList, Image, KeyboardAvoidingView, ListRenderItemInfo, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Alert, Button, Dimensions, FlatList, Image, KeyboardAvoidingView, LayoutChangeEvent, ListRenderItemInfo, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import MyButton from '../components/mybutton'
 import FormField from '../components/formfield'
@@ -7,10 +7,11 @@ import { addDoc, collection, onSnapshot } from 'firebase/firestore'
 import DropDownPicker from 'react-native-dropdown-picker'
 import { router } from 'expo-router'
 import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated'
-import { Tank } from '../getData'
-import { ListItem } from '../components/ListItem'
-
+import Card from '../components/Card'
+import { SimpleLineIcons } from '@expo/vector-icons';
 const MyTanks = () => {
+
+  const headerHeight = Dimensions.get("window").height - Dimensions.get("window").height - 100
   // useStates for creating tanks
   const [isAddingTank, setIsAddingTank] = useState(false)
   const [tankName, setTankName] = useState('');
@@ -21,21 +22,17 @@ const MyTanks = () => {
     {label: "Liters", value: 'L'},
     {label: "Gallons", value: 'G'},
   ]);
+  const [shrimps, setShrimps] = useState('');
 
   // useStates for displaying tanks
   const [userTanks, setUserTanks] = useState([]);
   const [expanded, setExpanded] = useState(false);
-  
-  const onTankPressed = () => {
+  const [currentID, setCurrentID] = useState<string|null>(null)
+  const toggleExpanded = (id:any) =>{
+    setCurrentID(id);
     setExpanded(!expanded);
   }
 
-  const animatedStyle = useAnimatedStyle(()=>{
-    const animatedHeight = expanded ? withTiming(200) : withTiming(0)
-    return {
-      height: animatedHeight
-    }
-  });
 
   // const renderTank = ({tank}: ListRenderItemInfo<Tank>) => {
   //   return <ListItem item={tank}/>
@@ -59,13 +56,14 @@ const MyTanks = () => {
   }, [])
   
   async function handlePress(){
-    if(tankName === "" || tankSize === ""){
+    if(tankName === "" || tankSize === "" || shrimps ===""){
       Alert.alert("Error", "Please fill in all fields");
     } else {
       try {
         const doc = await addDoc(collection(FIRESTORE_DB, 'tanks'), {
           name: tankName,
           size: tankSize,
+          shrimps: shrimps,
           measurmentType: selected,
         });
         console.log("DOC");
@@ -82,16 +80,18 @@ const MyTanks = () => {
   function clearFields(){
     setTankSize('');
     setTankName('');
+    setShrimps('');
     setIsAddingTank(false)
   }
     
   return (
     <>
+    <KeyboardAvoidingView  className="h-full" behavior='height' keyboardVerticalOffset={headerHeight + 50}>
+
+
     { 
     //adding tank view here 
     isAddingTank ? (
-      <KeyboardAvoidingView className="bg-offwhite h-full" behavior='padding' >
-        
         <View className="w-full flex justify-center h-full px-4 my-6"  style={{
             minHeight: Dimensions.get("window").height - 100,
           }}>
@@ -101,15 +101,15 @@ const MyTanks = () => {
                 value={tankName}
                 placeholder={undefined}
                 handleChangeText={(e: string) => setTankName(e)}
-                otherStyles='mt-20 ' textStyles='text-black'/>
+                otherStyles='mt-0 ' textStyles='text-black'/>
 
-          <View className='flex flex-row items-center'>
+          <View className='flex-row items-center'>
             <FormField 
                   title='Tank Size'
                   value={tankSize}
                   placeholder={undefined}
                   handleChangeText={(e: string) => setTankSize(e)}
-                  otherStyles='mt-7 w-60 pr-10 ' textStyles='text-black'/>
+                  otherStyles='mt-7 w-60 pr-5' textStyles='text-black'/>
 
             <DropDownPicker
               open={open}
@@ -119,21 +119,27 @@ const MyTanks = () => {
               setValue={setSelected}
               setItems={setMeasurmentTypes}
               style={styles.dropDownStyling}
-              containerStyle={{width:'40%', paddingRight:40}}
+              containerStyle={{width:'40%',  paddingRight:10}}
             />
-            
-          </View>
 
-          <View className="mb-8 mt-auto">
+          </View>
+          <FormField 
+              title='How Many Shrimp?'
+              value={shrimps}
+              placeholder={undefined}
+              handleChangeText={(e: string) => setShrimps(e)}
+              otherStyles='mt-7 ' textStyles='text-black' keyboardType='numberic'/>
+
+          <View className="mb-8 pb-5 mt-auto">
             <MyButton title="Add Tank" handlePress={handlePress} containerStyles={undefined} textStyles={undefined} isLoading={undefined}/>
             <MyButton title="Cancel" handlePress={clearFields} containerStyles='mt-4' textStyles={undefined} isLoading={undefined}/>
           </View>
         </View>
-      </KeyboardAvoidingView>
+
     ) 
     // normal view here
     : (
-      <KeyboardAvoidingView className="bg-offwhite h-full" behavior='padding' >
+
         <View className=" w-full flex justify-center h-full px-4 "  style={{
           minHeight: Dimensions.get("window").height - 100,
         }}>
@@ -143,13 +149,25 @@ const MyTanks = () => {
           <View>
             {userTanks.map(tank => (
               
-              <View>
-                <TouchableOpacity onPress={onTankPressed}>
-                  <Text key={tank.id} className='text-2xl font-semibold text-black mt-10 font-psemibold'>{tank.name}</Text>
+              <View key={tank.id}>
+                <TouchableOpacity onPress={()=> toggleExpanded(tank.id)}>
+                  <View className='flex-row items-center '>
+                  <Text className='text-2xl font-semibold text-black mt-7 font-psemibold'>{tank.name}</Text>
+                  <SimpleLineIcons style={{marginLeft:10, marginTop:30}}name={expanded && currentID === tank.id ? "arrow-down":"arrow-left"} size={24} color="black" />
+                  </View>
+                  {expanded && currentID === tank.id ? (
+                    <View className='flex flex-col items-start mb-4 '>
+
+                      <Text className='break-words'>{tank.name}</Text>
+                      <Text>Tank Size: {tank.size}{tank.measurmentType}</Text>
+                      <Text>Shrimps: {tank.shrimps}</Text>
+
+                    </View>
+
+                ) 
+                  : (null)
+                  }
                 </TouchableOpacity>
-                {/* <Animated.View style={animatedStyle}>
-                    <Text>test</Text>
-                  </Animated.View>    */}
               </View>
 
             ))}
@@ -159,9 +177,10 @@ const MyTanks = () => {
 
 
         </View>
-      </KeyboardAvoidingView>
+
      )
   }
+      </KeyboardAvoidingView>
   </> 
   )
 }
