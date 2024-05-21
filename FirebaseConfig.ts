@@ -5,7 +5,7 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
-import { getStorage } from "firebase/storage";
+import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
 // import AsyncStorage from '@react-native-async-storage/async-storage'
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -32,4 +32,40 @@ export const FIREBASE_APP = initializeAuth(app, {
 export const FIREBASE_STOREAGE_BUCKET = getStorage(app)
 export const FIREBASE_AUTH = getAuth(app);
 export const FIRESTORE_DB = getFirestore(app);
+
+
+export const uploadToFirebase = async (uri:any, name:any, onProgress:any) => {
+  const fetchResponse = await fetch(uri);
+  const theBlob = await fetchResponse.blob();
+
+  const imageRef = ref(getStorage(), `images/${name}`);
+
+  const uploadTask = uploadBytesResumable(imageRef, theBlob);
+
+  return new Promise((resolve, reject) => {
+  
+    uploadTask.on('state_changed', 
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        onProgress && onProgress(progress);
+        }, 
+        (error) => {
+        reject(error);
+        }, 
+        async () => {
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            resolve({
+              downloadURL,
+              metadata: uploadTask.snapshot.metadata,
+            })
+        
+      }
+    );
+  });
+};
+
+
+
+
+
 // const analytics = getAnalytics(FIREBASE_APP);
