@@ -12,9 +12,15 @@ import { SimpleLineIcons } from '@expo/vector-icons';
 import { Tank, Neocaridina, NeoRed } from '../interfaces/interfaces'
 import AddImage from '../components/AddImage'
 import { neoBlues, neoColors, neoGreens, neoOranges, neoReds, neoYellows } from '../utils/ShrimpTypes'
-const MyTanks = () => {
+import { AntDesign } from '@expo/vector-icons';
+import { openPicker } from '../utils/funkyfuncs'
+import * as DocumentPicker from 'expo-document-picker';
 
-  const headerHeight = Dimensions.get("window").height - Dimensions.get("window").height - 100
+
+const MyTanks = () => {
+  const deviceHeight = Dimensions.get("window").height;
+  const deviceWidth = Dimensions.get("window").width;
+  const headerHeight = deviceHeight - deviceHeight - 100
   // useStates for creating tanks
   const [isAddingTank, setIsAddingTank] = useState(false)
   const [tankName, setTankName] = useState('');
@@ -87,15 +93,16 @@ const MyTanks = () => {
   const [userTanks, setUserTanks] = useState<Tank[] >([]);
   const [expanded, setExpanded] = useState(false);
   const [currentID, setCurrentID] = useState<string|null>(null)
+  
+  const [form, setForm] = useState({
+    img: null,
+  });
 
   const toggleExpanded = (id:any) =>{
     setCurrentID(id);
     setExpanded(!expanded);
   }
 
-  // const renderTank = ({tank}: ListRenderItemInfo<Tank>) => {
-  //   return <ListItem item={tank}/>
-  // }
 
   useEffect(() => {
     const todoRef = collection(FIRESTORE_DB, 'tanks');
@@ -153,17 +160,29 @@ const MyTanks = () => {
     //adding tank view here 
     isAddingTank ? (
         <View className="w-full flex justify-center h-full px-4 my-6"  style={{
-            minHeight: Dimensions.get("window").height - 100,
+            minHeight: deviceHeight - 100,
           }}>
           <TouchableOpacity onPress={clearFields} className='absolute right-5 top-0 z-10'>
             <SimpleLineIcons name="close" size={20} color="black" />
           </TouchableOpacity>
-          <FormField 
-                title='Tank Name'
-                value={tankName}
-                placeholder={undefined}
-                handleChangeText={(e: string) => setTankName(e)}
-                otherStyles='mt-0 ' textStyles='text-black'/>
+
+          <View className='flex-row  items-center w-full justify-center' >
+              <View className='flex-1  w-16 h-full ' >
+                
+              <Text className='text-base text-black font-pmedium text-1xl font-semibold pl-2'>Upload Your Tank</Text>
+              <AddImage/>
+               
+
+              </View>
+
+                <FormField 
+                      title='Tank Name'
+                      value={tankName}
+                      placeholder={undefined}
+                      handleChangeText={(e: string) => setTankName(e)}
+                      otherStyles='flex-1  w-full h-full pr-8 pt-7' textStyles='text-black'/>
+            
+          </View>
 
           <View className='flex-row justify-between items-center justify-center'>
             <View className='flex-1'>
@@ -305,13 +324,20 @@ const MyTanks = () => {
       </View>
 
     ) 
-    // normal view here
+    ////////////////////////////////////////////////// NORMAL VIEW HERE //////////////////////////////////////////////////
     : (
         <View className=" w-full flex h-full px-4 "  style={{
-          minHeight: Dimensions.get("window").height - 100,
+          minHeight: deviceHeight - 100,
         }}>
-          <View className='justify-between items-start flex-row mb-4 '>
-            <Text className='text-3xl font-bold text-black mt-10'>Your Tanks</Text>
+          <View className='justify-between flex flex-row mb-2'>
+            <View className='flex-1'>
+              <Text className='text-3xl font-bold text-black mt-10'>Your Tanks</Text>
+            </View>
+            <View className='flex-1'>
+              <TouchableOpacity className='pl-40 top-10' onPress={()=> setIsAddingTank(true)}>
+                <SimpleLineIcons name="plus" size={24} color="black" />
+              </TouchableOpacity>
+            </View>
           </View>
           <View>
             {userTanks.map(tank => (
@@ -333,13 +359,8 @@ const MyTanks = () => {
                   }
                 </TouchableOpacity>
               </View>
-
             ))}
           </View>
-          
-          <MyButton title="Add Tank" handlePress={()=> setIsAddingTank(true)} containerStyles="mb-12 mt-auto" textStyles={'font-semibold text-lg'} isLoading={undefined}/>
-
-
         </View>
 
      )
@@ -366,8 +387,8 @@ const styles = StyleSheet.create({
       },
     dropDownStyling:{
       height: 64, // 16 * 4 (px-4) = 64
-      borderRadius: 16, // 2 * 8 (rounded-2xl) = 16
-      borderWidth: 2,
+      borderRadius: 8, // 2 * 8 (rounded-2xl) = 16
+      borderWidth: 1,
       borderColor: '#000',
       backgroundColor: '#fff',
       verticalAlign:'middle',
