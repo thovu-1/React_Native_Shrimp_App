@@ -8,9 +8,10 @@
  Upon signing up, the app will keep track of your profile which holds your aquariums and guide bookmarks.
 
  ### Future Plans
- - Adding breeding tree with images and guides
- - Move to a 24/7 server that is not local
- - Upload to the android playstore 
+ - Adding breeding tree with images and guides.
+ - Implement more functionality for the profile section.
+ - Add water parameter tracking (Display in graphs too)
+ - Upload to the android playstore.
 
  # Setup & Dependencies
  - I am using [React Native](https://reactnative.dev/docs/environment-setup) in conjunction with [Expo](https://docs.expo.dev/) for the front end
