@@ -37,12 +37,12 @@ const MyTanks = () => {
 
 
   const [openShrimpTypes, setOpenShrimpTypes] = useState(false);
-  const [selectedShrimpType, setSelectedShrimpType] = useState('rc')
+  const [selectedShrimpType, setSelectedShrimpType] = useState([])
 
-  const [shrimpType, setShrimpType] = useState<{label: string, value: string}[]>([]);
+  const [shrimpTypes, setShrimpTypes] = useState<{label: string, value: string}[]>([]);
 
   const [openShrimpVars, setOpenShrimpVars] = useState(false);
-  const [selectedShrimpVars, setSelectedShrimpVars] = useState('rc');
+  const [selectedShrimpVars, setSelectedShrimpVars] = useState([]);
   const [shrimpVars, setShrimpVars] = useState<{label: string, value: string}[]>([]);
 
   
@@ -50,36 +50,35 @@ const MyTanks = () => {
   useEffect(() => {
     switch(selectedShrimpSpecies){
       case 'neo':
-        setShrimpType(neoColors);
+        setShrimpTypes(neoColors);
         break;
       case'car':
-        setShrimpType([]);
+        setShrimpTypes([]);
       case'sel':
-      setShrimpType([]);
+      setShrimpTypes([]);
         break;
       default:
     }
   }, [selectedShrimpSpecies])
 
   useEffect(() => {
-    switch(selectedShrimpType){
-      case 'rc':
-          setShrimpVars(neoReds);
-        break;
-      case'bd':
-          setShrimpVars(neoBlues);
-        break;
-      case'orange':
-          setShrimpVars(neoOranges);
-        break;
-      case'green':
-          setShrimpVars(neoGreens);
-        break;
-      case'yellow':
-          setShrimpVars(neoYellows);
-        break;
-      default:
-    }
+    //Need to grab everything in 2d array and concat them into 1d array
+    let allVars: { label: string; value: string }[][] = [neoReds, neoYellows, neoGreens, neoOranges, neoBlues];
+    let retAr: {label: string; value: string }[] = [];
+    let temp: { label: string; value: string }[]= selectedShrimpType
+    temp.forEach(x =>{
+     
+      for(let i = 0; i < allVars.length; i++){
+        if(allVars[i].findIndex(j=> j.value === x)!== -1){
+
+          allVars[i].forEach(v=>{
+            retAr.push(v);
+          });
+        }
+      }
+      setShrimpVars(retAr);
+    })
+    
   }, [selectedShrimpType])
   
   const [additionalInfo, setAdditionalInfo] = useState('');
@@ -176,15 +175,16 @@ const MyTanks = () => {
                   otherStyles='' textStyles='text-black' keyboardType='numberic'/>
             </View>
 
-            <View className='flex-1'>
+            <View className='flex-1 '>
 
               <FormField 
                       title='Tank Size'
                       value={tankSize}
                       placeholder={undefined}
                       handleChangeText={(e: string) => setTankSize(e)}
-                      otherStyles=' pr-4 pl-4 pt-4' textStyles='text-black'/>
+                      otherStyles=' pr-4 pl-4' textStyles='text-black'/>
             </View>
+            {/**Picker For Gallons / Liters */}
             <DropDownPicker
                 open={openMeasurment}
                 value={selectedMeasurment}
@@ -199,45 +199,55 @@ const MyTanks = () => {
                 />
           </View>
 
+          <View className='flex-row justify-between items-center justify-center'>
 
-          <View className=''>
-            <Text className='text-base text-black font-pmedium text-1xl font-semibold'>Shrimp Species</Text>
-            <DropDownPicker
-                  open={openShrimpSpecies}
-                  value={selectedShrimpSpecies}
-                  items={shrimpSpecies}
-                  setOpen={setOpenShrimpSpecies}
-                  setValue={setSelectedShrimpSpecies}
-                  setItems={setShrimpSpecies} 
-                  style={styles.dropDownStyling}
-                  containerStyle={{paddingBottom:20}}
-                  textStyle={{fontSize:18}}
-                  autoScroll={true}
-                  />
-          </View>
+            <View className='flex-1 pr-8'>
+              <Text className='text-base text-black font-pmedium text-1xl font-semibold'>Shrimp Species</Text>
+              {/**Picker for Species */}
+              <DropDownPicker
+                    open={openShrimpSpecies}
+                    value={selectedShrimpSpecies}
+                    items={shrimpSpecies}
+                    setOpen={setOpenShrimpSpecies}
+                    setValue={setSelectedShrimpSpecies}
+                    setItems={setShrimpSpecies} 
+                    style={styles.dropDownStyling}
+                    containerStyle={{paddingBottom:10}}
+                    textStyle={{fontSize:18}}
+                    autoScroll={true}
+                    mode='BADGE'
+                    />
+            </View>
           
-          <View className=''>
-            <Text className='text-base text-black font-pmedium text-1xl font-semibold'>Shrimp Colors</Text>
-            <DropDownPicker
-                  open={openShrimpTypes}
-                  value={selectedShrimpType}
-                  items={shrimpType}
-                  setOpen={setOpenShrimpTypes}
-                  setValue={setSelectedShrimpType}
-                  setItems={setShrimpType} 
-                  style={styles.dropDownStyling}
-                  containerStyle={{paddingBottom:20}}
-                  textStyle={{fontSize:18}}
-                  autoScroll={true}
-                  />
-          </View>
+            <View className='flex-1 '>
+              <Text className='text-base text-black font-pmedium text-1xl font-semibold'>Shrimp Colors</Text>
+              {/**Picker for Color */}
+              <DropDownPicker
+                    open={openShrimpTypes}
+                    value={selectedShrimpType}
+                    items={shrimpTypes}
+                    multiple={true}
+                    placeholder='Shrimp Colors'
+                    setOpen={setOpenShrimpTypes}
+                    setValue={setSelectedShrimpType}
+                    setItems={setShrimpTypes} 
+                    style={styles.dropDownStyling}
+                    containerStyle={{paddingBottom:10}}
+                    textStyle={{fontSize:18}}
+                    autoScroll={true}
+                    />
+            </View>
 
+          </View>
           <View className=''>
             <Text className='text-base text-black font-pmedium text-1xl font-semibold'>Shrimp Varients</Text>
+            {/**Picker for Varients */}
             <DropDownPicker
                   open={openShrimpVars}
                   value={selectedShrimpVars}
                   items={shrimpVars}
+                  multiple={true}
+                  placeholder='Optionally select variants'
                   setOpen={setOpenShrimpVars}
                   setValue={setSelectedShrimpVars}
                   setItems={setShrimpVars} 
@@ -253,6 +263,41 @@ const MyTanks = () => {
           <View className=' pb-1'>
             <AddImage/>
           </View> */}
+          <View className='flex flex-wrap border'>
+            <View className='flex-row'>
+              <View className='flex-1 border-b'>
+                <Text>Species: </Text>
+              </View>
+              <View className='flex-1'>
+                <Text className='text-left border-b'>{shrimpSpecies.find(x=>x.value === selectedShrimpSpecies)?.label}</Text>
+              </View>
+            </View>
+            <View className='flex-row border-b'>
+              <View className='flex-1'>
+                <Text>Colors: </Text>
+              </View>
+              <View className='flex-1 '>
+              {selectedShrimpType.map(color => (
+                  <View key={color} className='flex-col flex'>
+                      <Text className='text-left '>{shrimpTypes.find(x=> x.value === color)?.label}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+
+            <View className='flex-row '>
+              <View className='flex-1'>
+                <Text>Varients: </Text>
+              </View>
+              <View className='flex-1'>
+              {selectedShrimpVars.map(vars => (
+                  <View key={vars} className='flex-col flex'>
+                      <Text className='text-left '>{shrimpVars.find(x=> x.value === vars)?.label}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </View>
      
           <View className="mb-8 pb-5 mt-auto">
             <MyButton title="Add Tank" handlePress={handlePress} containerStyles='mt-4' textStyles={undefined} isLoading={undefined}/>
