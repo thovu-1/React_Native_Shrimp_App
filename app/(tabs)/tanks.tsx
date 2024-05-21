@@ -1,4 +1,4 @@
-import { Alert, Button, Dimensions, FlatList, Image, KeyboardAvoidingView, LayoutChangeEvent, ListRenderItemInfo, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Alert, Button, Dimensions, FlatList, Image, KeyboardAvoidingView, LayoutChangeEvent, ListRenderItemInfo, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import MyButton from '../components/mybutton'
 import FormField from '../components/formfield'
@@ -9,7 +9,9 @@ import { router } from 'expo-router'
 import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import Card from '../components/Card'
 import { SimpleLineIcons } from '@expo/vector-icons';
-import { Tank } from '../interfaces/interfaces'
+import { Tank, Neocaridina, NeoRed } from '../interfaces/interfaces'
+import AddImage from '../components/AddImage'
+import { neoBlues, neoColors, neoGreens, neoOranges, neoReds, neoYellows } from '../utils/ShrimpTypes'
 const MyTanks = () => {
 
   const headerHeight = Dimensions.get("window").height - Dimensions.get("window").height - 100
@@ -17,24 +19,80 @@ const MyTanks = () => {
   const [isAddingTank, setIsAddingTank] = useState(false)
   const [tankName, setTankName] = useState('');
   const [tankSize, setTankSize] = useState('');
-  const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState('G')
+  const [openMeasurment, setOpenMeasurment] = useState(false);
+  const [selectedMeasurment, setSelectedMeasurment] = useState('G')
   const [measurmentTypes, setMeasurmentTypes] = useState([
     {label: "Liters", value: 'L'},
     {label: "Gallons", value: 'G'},
   ]);
-  const [shrimps, setShrimps] = useState('');
+  const [numOfShrimps, setNumOfShrimps] = useState('');
+  const [openShrimpSpecies, setOpenShrimpSpecies] = useState(false);
+  const [selectedShrimpSpecies, setSelectedShrimpSpecies] = useState('neo')
+  
+  const [shrimpSpecies, setShrimpSpecies] = useState([
+    {label: 'Neocaridina', value: 'neo'},
+    {label: 'Caridina', value: 'car'},
+    {label: 'Selawesi', value:'sel'},
+  ]);
+
+
+  const [openShrimpTypes, setOpenShrimpTypes] = useState(false);
+  const [selectedShrimpType, setSelectedShrimpType] = useState('rc')
+
+  const [shrimpType, setShrimpType] = useState<{label: string, value: string}[]>([]);
+
+  const [openShrimpVars, setOpenShrimpVars] = useState(false);
+  const [selectedShrimpVars, setSelectedShrimpVars] = useState('rc');
+  const [shrimpVars, setShrimpVars] = useState<{label: string, value: string}[]>([]);
+
+  
+
+  useEffect(() => {
+    switch(selectedShrimpSpecies){
+      case 'neo':
+        setShrimpType(neoColors);
+        break;
+      case'car':
+        setShrimpType([]);
+      case'sel':
+      setShrimpType([]);
+        break;
+      default:
+    }
+  }, [selectedShrimpSpecies])
+
+  useEffect(() => {
+    switch(selectedShrimpType){
+      case 'rc':
+          setShrimpVars(neoReds);
+        break;
+      case'bd':
+          setShrimpVars(neoBlues);
+        break;
+      case'orange':
+          setShrimpVars(neoOranges);
+        break;
+      case'green':
+          setShrimpVars(neoGreens);
+        break;
+      case'yellow':
+          setShrimpVars(neoYellows);
+        break;
+      default:
+    }
+  }, [selectedShrimpType])
+  
   const [additionalInfo, setAdditionalInfo] = useState('');
 
   // useStates for displaying tanks
-  const [userTanks, setUserTanks] = useState<Tank[]>([]);
+  const [userTanks, setUserTanks] = useState<Tank[] >([]);
   const [expanded, setExpanded] = useState(false);
   const [currentID, setCurrentID] = useState<string|null>(null)
+
   const toggleExpanded = (id:any) =>{
     setCurrentID(id);
     setExpanded(!expanded);
   }
-
 
   // const renderTank = ({tank}: ListRenderItemInfo<Tank>) => {
   //   return <ListItem item={tank}/>
@@ -58,46 +116,49 @@ const MyTanks = () => {
   }, [])
   
   async function handlePress(){
-    if(tankName === "" || tankSize === "" || shrimps ===""){
+    if(tankName === "" || tankSize === "" || numOfShrimps ===""){
       Alert.alert("Error", "Please fill in all fields");
     } else {
       try {
         const doc = await addDoc(collection(FIRESTORE_DB, 'tanks'), {
           name: tankName,
           size: tankSize,
-          shrimps: shrimps,
-          measurmentType: selected,
+          numberOfShrimps: numOfShrimps,
+          measurmentType: selectedMeasurment,
+          species: selectedShrimpSpecies,
+          color: selectedShrimpType,
+          varient: selectedShrimpVars,
         });
         console.log("DOC");
         console.log(doc);
       }catch(e){
         console.log(e);
       }
-      
       clearFields();
       Alert.alert("Tank added successfully");
       setIsAddingTank(false);
     }
   }
   function clearFields(){
+    ToastAndroid.show("Clearing Fields", ToastAndroid.SHORT);
     setTankSize('');
     setTankName('');
-    setShrimps('');
+    setNumOfShrimps('');
     setIsAddingTank(false)
   }
     
   return (
     <>
     <KeyboardAvoidingView  className="h-full" behavior='height' keyboardVerticalOffset={headerHeight + 50}>
-
-
     { 
     //adding tank view here 
     isAddingTank ? (
         <View className="w-full flex justify-center h-full px-4 my-6"  style={{
             minHeight: Dimensions.get("window").height - 100,
           }}>
-  
+          <TouchableOpacity onPress={clearFields} className='absolute right-5 top-0 z-10'>
+            <SimpleLineIcons name="close" size={20} color="black" />
+          </TouchableOpacity>
           <FormField 
                 title='Tank Name'
                 value={tankName}
@@ -105,43 +166,102 @@ const MyTanks = () => {
                 handleChangeText={(e: string) => setTankName(e)}
                 otherStyles='mt-0 ' textStyles='text-black'/>
 
-          <View className='flex-row items-center'>
-            <FormField 
-                  title='Tank Size'
-                  value={tankSize}
+          <View className='flex-row justify-between items-center justify-center'>
+            <View className='flex-1'>
+              <FormField 
+                  title='# of Shrimp?'
+                  value={numOfShrimps}
                   placeholder={undefined}
-                  handleChangeText={(e: string) => setTankSize(e)}
-                  otherStyles='mt-7 w-60 pr-5' textStyles='text-black'/>
+                  handleChangeText={(e: string) => setNumOfShrimps(e)}
+                  otherStyles='' textStyles='text-black' keyboardType='numberic'/>
+            </View>
 
+            <View className='flex-1'>
+
+              <FormField 
+                      title='Tank Size'
+                      value={tankSize}
+                      placeholder={undefined}
+                      handleChangeText={(e: string) => setTankSize(e)}
+                      otherStyles=' pr-4 pl-4 pt-4' textStyles='text-black'/>
+            </View>
             <DropDownPicker
-              open={open}
-              value={selected}
-              items={measurmentTypes}
-              setOpen={setOpen}
-              setValue={setSelected}
-              setItems={setMeasurmentTypes}
-              style={styles.dropDownStyling}
-              containerStyle={{width:'40%',  paddingRight:10}}
-            />
-
+                open={openMeasurment}
+                value={selectedMeasurment}
+                items={measurmentTypes}
+                setOpen={setOpenMeasurment}
+                setValue={setSelectedMeasurment}
+                setItems={setMeasurmentTypes}
+                style={styles.dropDownStyling}
+                containerStyle={{flex: 1, marginTop:28}}
+                labelProps={{numberOfLines: 1}}
+                textStyle={{fontSize:18}}
+                />
           </View>
-          <FormField 
-              title='How Many Shrimp?'
-              value={shrimps}
-              placeholder={undefined}
-              handleChangeText={(e: string) => setShrimps(e)}
-              otherStyles='mt-7 ' textStyles='text-black' keyboardType='numberic'/>
 
+
+          <View className=''>
+            <Text className='text-base text-black font-pmedium text-1xl font-semibold'>Shrimp Species</Text>
+            <DropDownPicker
+                  open={openShrimpSpecies}
+                  value={selectedShrimpSpecies}
+                  items={shrimpSpecies}
+                  setOpen={setOpenShrimpSpecies}
+                  setValue={setSelectedShrimpSpecies}
+                  setItems={setShrimpSpecies} 
+                  style={styles.dropDownStyling}
+                  containerStyle={{paddingBottom:20}}
+                  textStyle={{fontSize:18}}
+                  autoScroll={true}
+                  />
+          </View>
+          
+          <View className=''>
+            <Text className='text-base text-black font-pmedium text-1xl font-semibold'>Shrimp Colors</Text>
+            <DropDownPicker
+                  open={openShrimpTypes}
+                  value={selectedShrimpType}
+                  items={shrimpType}
+                  setOpen={setOpenShrimpTypes}
+                  setValue={setSelectedShrimpType}
+                  setItems={setShrimpType} 
+                  style={styles.dropDownStyling}
+                  containerStyle={{paddingBottom:20}}
+                  textStyle={{fontSize:18}}
+                  autoScroll={true}
+                  />
+          </View>
+
+          <View className=''>
+            <Text className='text-base text-black font-pmedium text-1xl font-semibold'>Shrimp Varients</Text>
+            <DropDownPicker
+                  open={openShrimpVars}
+                  value={selectedShrimpVars}
+                  items={shrimpVars}
+                  setOpen={setOpenShrimpVars}
+                  setValue={setSelectedShrimpVars}
+                  setItems={setShrimpVars} 
+                  style={styles.dropDownStyling}
+                  containerStyle={{paddingBottom:20}}
+                  maxHeight={140}
+                  textStyle={{fontSize:18}}
+                  dropDownDirection='AUTO'
+                  autoScroll={true}
+                  />
+          </View>
+          {/* Maybe add images later on. takes up too much space 
+          <View className=' pb-1'>
+            <AddImage/>
+          </View> */}
+     
           <View className="mb-8 pb-5 mt-auto">
-            <MyButton title="Add Tank" handlePress={handlePress} containerStyles={undefined} textStyles={undefined} isLoading={undefined}/>
-            <MyButton title="Cancel" handlePress={clearFields} containerStyles='mt-4' textStyles={undefined} isLoading={undefined}/>
+            <MyButton title="Add Tank" handlePress={handlePress} containerStyles='mt-4' textStyles={undefined} isLoading={undefined}/>
           </View>
-        </View>
+      </View>
 
     ) 
     // normal view here
     : (
-
         <View className=" w-full flex h-full px-4 "  style={{
           minHeight: Dimensions.get("window").height - 100,
         }}>
@@ -159,13 +279,10 @@ const MyTanks = () => {
                   </View>
                   {expanded && currentID === tank.id ? (
                     <View className='flex flex-col items-start mb-4'>
-
-                      <Text className='break-words'>{tank.name}</Text>
+                      <Text>{tank.name}</Text>
                       <Text>Tank Size: {tank.size}{tank.measurmentUnit}</Text>
-                      <Text>Shrimps: {tank.shrimps}</Text>
-
+                      <Text>Shrimps: {tank.numberOfShrimps}</Text>
                     </View>
-
                 ) 
                   : (null)
                   }
@@ -203,13 +320,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
       },
     dropDownStyling:{
-      width: '100%',
       height: 64, // 16 * 4 (px-4) = 64
       borderRadius: 16, // 2 * 8 (rounded-2xl) = 16
       borderWidth: 2,
       borderColor: '#000',
       backgroundColor: '#fff',
-      marginTop:65,
+      verticalAlign:'middle',
+      zIndex:10
+
     },
     card: {
       backgroundColor: '#FCFBF4',
