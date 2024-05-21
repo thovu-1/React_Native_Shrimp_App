@@ -1,14 +1,19 @@
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-const FormField = ({title, value, placeholder, handleChangeText,textStyles, otherStyles, ...props}) => {
+const FormField = ({title, value, placeholder, handleChangeText,textStyles, otherStyles: containerStyles, textContainerStyles, ...props}) => {
     const [showPassword, setShowPassword] = useState(false)
 
   return (
-    <View className={`space-y-2 ${otherStyles}`}>
+    <View className={`space-y-2 ${containerStyles}`}>
       <Text className={`text-base text-gray-100 font-pmedium text-1xl font-semibold ${textStyles}`}>{title}</Text>
 
-      <View className="w-full h-10 px-4 rounded-xl border border-black-200 focus:border-secondary flex flex-row items-center bg-white">
+      <View className={
+        `w-full h-10 px-4 rounded-xl 
+        border border-black-200 focus:border-secondary 
+        flex flex-row items-center bg-white
+        ${textContainerStyles}
+        `}>
         <TextInput
           className={`flex-1 text-black font-psemibold text-base ${textStyles}`}
           value={value}

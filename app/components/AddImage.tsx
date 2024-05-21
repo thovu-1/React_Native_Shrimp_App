@@ -64,7 +64,7 @@ const AddImage = () => {
   return (
             <View style={{maxHeight:100, maxWidth:100, marginVertical:6}} >
                 {/* <TouchableOpacity className='' onPress={() => openPicker('image')}> */}
-                <TouchableOpacity className='' onPress={() => takePhoto()}>
+                <TouchableOpacity className='' onPress={() => openPicker('image')}>
                 {form.img ? (
                     <View className=''>
                         <Image style={{width:128, height:96}} resizeMethod='resize' resizeMode='contain' source={{uri: form.img.uri}}/>
