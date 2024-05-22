@@ -17,20 +17,6 @@ const AddImage = ({image, setImage}) => {
     const [form, setForm] = useState({
         img: null,
     });
-    
-    // if(permission?.status != ImagePicker.getCameraPermissionsAsync()){
-    //     console.log("PERSONIOSSION STATUS")
-    //     console.log(permission?.status);
-    //     Alert.alert('Permission Error', 'You need to grant permission to access the camera', [
-    //         {
-    //             text: 'Grant Permission',
-    //             onPress: () => requestPermission()
-    //         },{
-    //             text: 'Cancel',
-    //             onPress: () => console.log('Cancel')
-    //         }
-    //     ])
-    // }
 
     const takePhoto = async () => {
         const permissions = await ImagePicker.getCameraPermissionsAsync();
@@ -60,9 +46,6 @@ const AddImage = ({image, setImage}) => {
                 const {uri} = result.assets[0];
                 const fileName = uri.split('/').pop();
                 const uploadResp = await uploadImageToFirebase(uri, fileName, (v:any)=> console.log(v));
-                console.log("IMAGE SAVED");
-                console.log(uploadResp);
-                console.log("SAVING FILE NAME");
                 setImage(fileName);
                 
             }

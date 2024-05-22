@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import MyButton from '../components/mybutton'
 import FormField from '../components/formfield'
 import { FIREBASE_STOREAGE_BUCKET, FIRESTORE_DB, uploadImageToFirebase } from '../../FirebaseConfig'
-import { addDoc, collection, onSnapshot } from 'firebase/firestore'
+import { addDoc, collection, getDocs, onSnapshot } from 'firebase/firestore'
 import DropDownPicker from 'react-native-dropdown-picker'
 import { SimpleLineIcons } from '@expo/vector-icons';
 import { Tank } from '../interfaces/interfaces'
@@ -13,6 +13,9 @@ import { AntDesign } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { getDownloadURL, getStorage, ref } from 'firebase/storage'
 import TankUri from '../components/TankUri'
+import { getImages } from '../utils/funkyfuncs'
+import { fetchUpdateAsync } from 'expo-updates'
+import { SplashScreen, useLocalSearchParams } from 'expo-router'
 
 const MyTanks = () => {
   const deviceHeight = Dimensions.get("window").height;
@@ -40,7 +43,7 @@ const MyTanks = () => {
 
 
   const [openShrimpTypes, setOpenShrimpTypes] = useState(false);
-  const [selectedShrimpTypes, setSelectedShrimpType] = useState([])
+  const [selectedShrimpTypes, setSelectedShrimpTypes] = useState([])
 
   const [shrimpTypes, setShrimpTypes] = useState<{label: string, value: string}[]>([]);
 
@@ -48,7 +51,7 @@ const MyTanks = () => {
   const [selectedShrimpVars, setSelectedShrimpVars] = useState([]);
   const [shrimpVars, setShrimpVars] = useState<{label: string, value: string}[]>([]);
 
-  const [image, setImage] = useState<string | null>()
+ 
   const [additionalInfo, setAdditionalInfo] = useState('');
 
   // useStates for displaying tanks
@@ -57,13 +60,20 @@ const MyTanks = () => {
   const [currentID, setCurrentID] = useState<string|null>(null)
 
   const [imageFileName, setImageFileName] = useState('');
+  const [userImageNames, setUserImageNames] = useState<{name:string}[]>([]);
+  const [userImages, setUserImages] = useState<string[]>([]);
 
-
+  const [data, setData] = useState<{tank:Tank, uri:string}[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadData, setLoadData]=useState(0);
   const toggleExpanded = (id:any) =>{
     setCurrentID(id);
     setExpanded(!expanded);
   }
 
+  const fetchData = async () =>{
+
+}
   async function saveNewTank(){
     if(tankName === "" || tankSize === "" || numOfShrimps ===""){
       Alert.alert("Error", "Please fill in all fields");
@@ -92,10 +102,11 @@ const MyTanks = () => {
     }
   }
   function clearFields(){
-    ToastAndroid.show("Clearing Fields", ToastAndroid.SHORT);
     setTankSize('');
     setTankName('');
     setNumOfShrimps('');
+    setSelectedShrimpTypes([]);
+    setSelectedShrimpVars([]);
     setIsAddingTank(false)
   }
     
@@ -106,53 +117,107 @@ const MyTanks = () => {
     setOpenShrimpVars(false);
   }
 
-  async function savePhoto(image:any){
-    const {uri} = image.assets[0];
-    const fileName = uri.split('/').pop();
-    const uploadResp = await uploadImageToFirebase(uri, fileName, (v:any)=> console.log(v));
-    console.log("UPLOAD RESP")
-    console.log(uploadResp);
-    return fileName;
+  async function grabPhotoAddresses(){
+    await getImages().then((images) => {
+        setUserImageNames(images);
+    });
   }
 
+  async function grabPhotoUris(){
+    fetch
+    const userAddresses = userImageNames; //Grab the current user image names
+    userAddresses.forEach((address) =>{
+      getDownloadURL(ref(FIREBASE_STOREAGE_BUCKET, address.name)).then((x) => {
+        let tempAr = userImages; // let tempAr be the userImages
+        if(!userImages.includes(x)){
+          tempAr.push(x); // add the uri to tempAr
+          setUserImages(tempAr) //How is userImages expanding aka getting data
+        }  
+      }).catch((e) => {
+        Alert.alert("Grab Photos", e.message);
+      })
+    })
+  }
 
+  async function grabPhotosAndTanks(){
+    const tanks = userTanks; //taml uri == abcd123.jpg
+    const uris = userImages; // uris === htttp://abcd123.jpg
+
+    let temp: React.SetStateAction<{ tank: Tank; uri: string }[]> = [];
+    tanks.forEach((tank) => {
+
+      uris.forEach((uri) => { 
+        if(uri.includes(tank.imageURI) && !data.includes({tank:tank, uri:uri}) ){
+          temp.push({tank:tank, uri:uri});
+        }
+      });
+    })
+    setData(temp);
+  }
+  
   //Use Effects
 
 
 
   useEffect(() => {
-    const todoRef = collection(FIRESTORE_DB, 'tanks');
+    
+    const fetchData = async () =>{
+      setLoading(true);
+      const imageNames:{name: string}[] = await getImages();
+      const todoRef = collection(FIRESTORE_DB, 'tanks');
+      let tankList:Tank[] = [];
+      const subscriber = onSnapshot(todoRef, {    
+          next: (snapshot) => {
+              console.log("UPDATED");
 
-    const subscriber = onSnapshot(todoRef, {
-      next: (snapshot) => {
-        console.log("UPDATED");
-
-        const tanks: any = [];
-        snapshot.forEach((doc) => {
-          tanks.push({...doc.data(), id: doc.id });
-        });
-        setUserTanks(tanks);
-      },
-    })
-    const test = async () => {
-      console.log("HERE");
-      console.log(imageFileName)
+              const tanks: any = [];
+              snapshot.forEach((doc) => {
+                  tanks.push({...doc.data(), id: doc.id });
+              });
+              tankList = tanks;
+              
+              const images:string[]= [];
+              imageNames.forEach((name) =>{
+                  getDownloadURL(ref(FIREBASE_STOREAGE_BUCKET, name.name)).then((url) => {
+                      images.push(url);
+                  });
+              });
+        
+              let finalData:{tank: any, uri: string}[] = [];
+              
+              for(let i = 0; i < tankList.length; i++){
+                  const index = images.indexOf(tankList[i].imageURI)
+                  if( index > 0){
+                      
+                    finalData.push({tank: tankList[i], uri: images[index]});
+                  } else {
+                    finalData.push({tank: tankList[i], uri: ''});
+                  }
+              }
+              console.log(finalData);
+              setData(finalData);
+              console.log("FORTNITE BALLS");
+              console.log(finalData)
+          },
+      })
+      setLoading(false)
+      return () => subscriber();
     }
-    test();
-   
-    return () => subscriber();
+    try{
+      fetchData();
+    }catch(error){
+      Alert.alert("Error Fetching Data", error.message);
+    }
   }, [])
 
-  
-
   useEffect(() => {
-    if(image!== null){
-      //For uploading to firebase 
-      // savePhoto(image.img);
-      // setImage({img: null});
-      //console.log(image.img);
+    if(loading){
+      SplashScreen.preventAutoHideAsync();
+    } else {
+
+      // SplashScreen.hideAsync();
     }
-  }, [image])
+  },[loading]);
   
   useEffect(() => {
     switch(selectedShrimpSpecies){
@@ -229,7 +294,7 @@ const MyTanks = () => {
   
   
   return (
-    <TouchableWithoutFeedback onPress={()=> {
+    <TouchableWithoutFeedback disabled={loading} onPress={()=> {
       if(isAddingTank){
         closeAllDropDowns();
         Keyboard.dismiss();
@@ -255,9 +320,7 @@ const MyTanks = () => {
                 <View className='flex-1  w-16 h-full ' >
                   
                   <Text className='text-base text-black font-pmedium text-1xl font-semibold pl-2'>Upload Your Tank</Text>
-                  {/* <AddImage image={image} setImage={setImage}/> */}
                   <AddImage image={imageFileName} setImage={setImageFileName}/>
-                
 
                 </View>
 
@@ -335,7 +398,7 @@ const MyTanks = () => {
                     multiple={true}
                     placeholder='Shrimp Colors'
                     setOpen={setOpenShrimpTypes}
-                    setValue={setSelectedShrimpType}
+                    setValue={setSelectedShrimpTypes}
                     setItems={setShrimpTypes} 
                     style={styles.dropDownStyling}
                     containerStyle={{paddingBottom:10}}
@@ -367,10 +430,6 @@ const MyTanks = () => {
                   multipleText={selectedShrimpVars.length.toString()}
                   />
           </View>
-          {/* Maybe add images later on. takes up too much space 
-          <View className=' pb-1'>
-            <AddImage/>
-          </View> */}
           <View className='flex flex-wrap border'>
             <View className='flex-row'>
               <View className='flex-1 border-b'>
@@ -432,21 +491,28 @@ const MyTanks = () => {
               <View>
               
                 </View>
-            {userTanks.map(tank => (
+            {data.map(tank => (
               
-              <View  style={styles.card} key={tank.id}>
-                <TouchableOpacity onPress={()=> toggleExpanded(tank.id)}>
+              <View  style={styles.card} key={tank.tank.id}>
+                <TouchableOpacity onPress={()=> toggleExpanded(tank.tank.id)}>
                   <View className='flex flex-row justify-between'>
-                  <Text className='text-2xl items-center font-semibold text-black pt-4 pb-4 font-psemibold '>{tank.name}</Text>
-                  <SimpleLineIcons style={{marginRight:15, verticalAlign:'middle'}}name={expanded && currentID === tank.id ? "arrow-down":"arrow-left"} size={24} color="black" />
+                  <Text className='text-2xl items-center font-semibold text-black pt-4 pb-4 font-psemibold '>{tank.tank.name}</Text>
+                  <SimpleLineIcons style={{marginRight:15, verticalAlign:'middle'}}name={expanded && currentID === tank.tank.id ? "arrow-down":"arrow-left"} size={24} color="black" />
                   </View>
-                  {expanded && currentID === tank.id ? (
+                  {expanded && currentID === tank.tank.id ? (
                     <View className='flex flex-col items-start mb-4'>
-                      <Text>{tank.name}</Text>
-                      <Text>Tank Size: {tank.size}{tank.measurmentUnit}</Text>
-                      <Text>Shrimps: {tank.numberOfShrimps}</Text>
-                      <Text>URI: {tank.imageURI}</Text>
-                      {tank.imageURI.length > 0 ? ( <TankUri filename={tank.imageURI}/>): (null)}
+                      <Text>{tank.tank.name}</Text>
+                      <Text>Tank Size: {tank.tank.size}{tank.tank.measurmentUnit}</Text>
+                      <Text>Shrimps: {tank.tank.numberOfShrimps}</Text>
+                      <Text>URI: {tank.tank.imageURI}</Text>
+                      {tank.uri.length > 0 ? (
+                        <Image style={{height:25, width:25}} source={{uri:tank.uri}}/>
+                      ):(null)}
+                      {/* {userImages.indexOf(tank.imageURI) != -1 ? ( 
+                        <Image 
+                          source={{uri: userImages[userImages.indexOf(tank.imageURI)]}}/>
+                        ): 
+                      (null)} */}
                      
                       {/* <Image source={{uri: returnImage(tank.imageURI)}} /> */}
                     </View>

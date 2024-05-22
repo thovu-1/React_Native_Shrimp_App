@@ -6,15 +6,22 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import  MyButton  from './components/mybutton';
 import 'react-native-gesture-handler';
 import { User, onAuthStateChanged } from 'firebase/auth';
-import { FIREBASE_AUTH } from '../FirebaseConfig';
+import { FIREBASE_AUTH, FIREBASE_STOREAGE_BUCKET, FIRESTORE_DB } from '../FirebaseConfig';
+import { getImages } from './utils/funkyfuncs';
+import { collection, doc, getDocs } from 'firebase/firestore';
+import { getDownloadURL, ref } from 'firebase/storage';
+import { Tank } from './interfaces/interfaces';
 const HomePage= () => {
     const [user, setuser] = useState<User | null>(null);
     const navigation = useNavigation();
-
+    const [data, setData] = useState<{tank:Tank, uri:string|null}[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string|null>(null);
+    const [userTanks, setUserTanks] = useState<Tank[] >([]);
     useEffect(() => {
+
       onAuthStateChanged(FIREBASE_AUTH, (user) => {
         console.log('user', user);
-        console.log("\n\n\n\n\n\n")
         setuser(user)
         if(user){
           router.replace('/tanks')
