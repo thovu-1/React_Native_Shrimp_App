@@ -12,6 +12,9 @@
  - Implement more functionality for the profile section.
  - Add water parameter tracking (Display in graphs too)
  - Upload to the android playstore.
+ - Implement ML technology (maybe tensorflow?) to count the number of shrimp in a photo
+ - Use ML technology to determine the species / variant of the shrimp from a picture.
+ - Combine both points above and do it all at once.
 
  # Setup & Dependencies
  - I am using [React Native](https://reactnative.dev/docs/environment-setup) in conjunction with [Expo](https://docs.expo.dev/) for the front end
