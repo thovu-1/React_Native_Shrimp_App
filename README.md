@@ -1,6 +1,6 @@
 # React_Native_Shrimp_App
- -Full Stack Project. Users can track, manage, and upload photos of their shrimp aquariums.  
- -Utilizes React Native Expo, and Firebase
+ Full Stack Project. Users can track, manage, and upload photos of their shrimp aquariums.  
+ Utilizes React Native Expo, and Firebase
 
  # Project Description
  For this project, I wanted to make an app that would help others in keeping their Neocaridina and Caridina shrimps.
