@@ -1,7 +1,7 @@
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-const FormField = ({title, value, placeholder, handleChangeText,textStyles, otherStyles: containerStyles, textContainerStyles, ...props}) => {
+const FormField = ({title, value, placeholder, handleChangeText,textStyles, otherStyles: containerStyles, textContainerStyles , ...props}) => {
     const [showPassword, setShowPassword] = useState(false)
 
   return (

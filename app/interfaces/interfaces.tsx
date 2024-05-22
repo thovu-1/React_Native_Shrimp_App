@@ -1,12 +1,20 @@
 import { Float } from "react-native/Libraries/Types/CodegenTypes";
-
+import { ImageProps } from "react-native";
 export interface Tank {
     id: string;
     name: string;
     size: number;
     measurmentUnit: 'G' | 'L';
     numberOfShrimps: number;
+    species: string;
+    colors: string;
+    varients: string;
+    imageURI: string;
     additionalInfo: string;
+}
+export interface AddImageProps  {
+    image: ImageProps | null;
+    setImage:(image:ImageProps|null) => void;
 }
 
 export interface NeoGreen extends Neocaridina{

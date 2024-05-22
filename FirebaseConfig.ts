@@ -5,7 +5,7 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
-import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
+import { getDownloadURL, getStorage, listAll, ref, uploadBytesResumable } from "firebase/storage";
 // import AsyncStorage from '@react-native-async-storage/async-storage'
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -29,17 +29,16 @@ export const FIREBASE_APP = initializeAuth(app, {
   persistence: getReactNativePersistence(ReactNativeAsyncStorage)
 });
 
-export const FIREBASE_STOREAGE_BUCKET = getStorage(app)
+export const FIREBASE_STOREAGE_BUCKET = getStorage(app, firebaseConfig.storageBucket);
 export const FIREBASE_AUTH = getAuth(app);
 export const FIRESTORE_DB = getFirestore(app);
 
 
-export const uploadToFirebase = async (uri:any, name:any, onProgress:any) => {
+
+export const uploadImageToFirebase = async (uri:any, name:any, onProgress:any) => {
   const fetchResponse = await fetch(uri);
   const theBlob = await fetchResponse.blob();
-
   const imageRef = ref(getStorage(), `images/${name}`);
-
   const uploadTask = uploadBytesResumable(imageRef, theBlob);
 
   return new Promise((resolve, reject) => {
@@ -63,6 +62,8 @@ export const uploadToFirebase = async (uri:any, name:any, onProgress:any) => {
     );
   });
 };
+
+
 
 
 

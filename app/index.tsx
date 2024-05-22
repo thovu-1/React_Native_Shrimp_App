@@ -10,6 +10,7 @@ import { FIREBASE_AUTH } from '../FirebaseConfig';
 const HomePage= () => {
     const [user, setuser] = useState<User | null>(null);
     const navigation = useNavigation();
+
     useEffect(() => {
       onAuthStateChanged(FIREBASE_AUTH, (user) => {
         console.log('user', user);
