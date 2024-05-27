@@ -1,21 +1,20 @@
-import { Alert, Dimensions, Image, Keyboard, KeyboardAvoidingView, ScrollView, StyleSheet, Text, ToastAndroid, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
+import { Alert, Dimensions, Image, Keyboard, KeyboardAvoidingView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import MyButton from '../components/mybutton'
 import FormField from '../components/formfield'
-import { FIREBASE_STOREAGE_BUCKET, FIRESTORE_DB, uploadImageToFirebase } from '../../FirebaseConfig'
+import { FIREBASE_STOREAGE_BUCKET, FIRESTORE_DB } from '../../FirebaseConfig'
 import { addDoc, collection, getDocs, onSnapshot } from 'firebase/firestore'
 import DropDownPicker from 'react-native-dropdown-picker'
 import { SimpleLineIcons } from '@expo/vector-icons';
 import { Tank } from '../interfaces/interfaces'
 import AddImage from '../components/AddImage'
 import { neoBlues, neoColors, neoGreens, neoOranges, neoReds, neoYellows } from '../utils/ShrimpTypes'
-import { AntDesign } from '@expo/vector-icons';
-import * as ImagePicker from 'expo-image-picker';
-import { getDownloadURL, getStorage, ref } from 'firebase/storage'
-import TankUri from '../components/TankUri'
+
+import { getDownloadURL, ref } from 'firebase/storage'
+
 import { getImages } from '../utils/funkyfuncs'
-import { fetchUpdateAsync } from 'expo-updates'
-import { SplashScreen, useLocalSearchParams } from 'expo-router'
+
+import { SplashScreen } from 'expo-router'
 
 const MyTanks = () => {
   const deviceHeight = Dimensions.get("window").height;
@@ -50,30 +49,20 @@ const MyTanks = () => {
   const [openShrimpVars, setOpenShrimpVars] = useState(false);
   const [selectedShrimpVars, setSelectedShrimpVars] = useState([]);
   const [shrimpVars, setShrimpVars] = useState<{label: string, value: string}[]>([]);
-
- 
-  const [additionalInfo, setAdditionalInfo] = useState('');
-
   // useStates for displaying tanks
-  const [userTanks, setUserTanks] = useState<Tank[] >([]);
   const [expanded, setExpanded] = useState(false);
   const [currentID, setCurrentID] = useState<string|null>(null)
 
   const [imageFileName, setImageFileName] = useState('');
-  const [userImageNames, setUserImageNames] = useState<{name:string}[]>([]);
-  const [userImages, setUserImages] = useState<string[]>([]);
+
 
   const [data, setData] = useState<{tank:Tank, uri:string}[]>([]);
   const [loading, setLoading] = useState(true);
-  const [loadData, setLoadData]=useState(0);
+
   const toggleExpanded = (id:any) =>{
     setCurrentID(id);
     setExpanded(!expanded);
   }
-
-  const fetchData = async () =>{
-
-}
   async function saveNewTank(){
     if(tankName === "" || tankSize === "" || numOfShrimps ===""){
       Alert.alert("Error", "Please fill in all fields");
@@ -117,98 +106,73 @@ const MyTanks = () => {
     setOpenShrimpVars(false);
   }
 
-  async function grabPhotoAddresses(){
-    await getImages().then((images) => {
-        setUserImageNames(images);
-    });
-  }
-
-  async function grabPhotoUris(){
-    fetch
-    const userAddresses = userImageNames; //Grab the current user image names
-    userAddresses.forEach((address) =>{
-      getDownloadURL(ref(FIREBASE_STOREAGE_BUCKET, address.name)).then((x) => {
-        let tempAr = userImages; // let tempAr be the userImages
-        if(!userImages.includes(x)){
-          tempAr.push(x); // add the uri to tempAr
-          setUserImages(tempAr) //How is userImages expanding aka getting data
-        }  
-      }).catch((e) => {
-        Alert.alert("Grab Photos", e.message);
-      })
-    })
-  }
-
-  async function grabPhotosAndTanks(){
-    const tanks = userTanks; //taml uri == abcd123.jpg
-    const uris = userImages; // uris === htttp://abcd123.jpg
-
-    let temp: React.SetStateAction<{ tank: Tank; uri: string }[]> = [];
-    tanks.forEach((tank) => {
-
-      uris.forEach((uri) => { 
-        if(uri.includes(tank.imageURI) && !data.includes({tank:tank, uri:uri}) ){
-          temp.push({tank:tank, uri:uri});
-        }
-      });
-    })
-    setData(temp);
-  }
   
   //Use Effects
 
 
 
   useEffect(() => {
-    
     const fetchData = async () =>{
+      //Set loading state to true
       setLoading(true);
+      
+      // Grabbing Image names from storage bucket and tanks from firestore DB
       const imageNames:{name: string}[] = await getImages();
       const todoRef = collection(FIRESTORE_DB, 'tanks');
-      let tankList:Tank[] = [];
-      const subscriber = onSnapshot(todoRef, {    
-          next: (snapshot) => {
-              console.log("UPDATED");
 
-              const tanks: any = [];
-              snapshot.forEach((doc) => {
-                  tanks.push({...doc.data(), id: doc.id });
-              });
-              tankList = tanks;
+      // Creating empty variables to store data temporarily
+      let tankList:Tank[] = [];
+      const images:string[]= [];
+
+      // Loop through image names and grabbing image uri's from firebase storage bucket
+      for (let i=0; i<imageNames.length; i++){
+        await getDownloadURL(ref(FIREBASE_STOREAGE_BUCKET, imageNames[i].name)).then((url) => {
+          images.push(url);
+        });    
+      }
+        const subscriber = onSnapshot(todoRef, {    
+            next: (snapshot) => {
+                console.log("UPDATED");
+
+                const tanks: any = [];
+                snapshot.forEach((doc) => {
+                    tanks.push({...doc.data(), id: doc.id });
+                });
+                tankList = tanks;
+                
               
-              const images:string[]= [];
-              imageNames.forEach((name) =>{
-                  getDownloadURL(ref(FIREBASE_STOREAGE_BUCKET, name.name)).then((url) => {
-                      images.push(url);
-                  });
-              });
-        
-              let finalData:{tank: any, uri: string}[] = [];
-              
-              for(let i = 0; i < tankList.length; i++){
-                  const index = images.indexOf(tankList[i].imageURI)
-                  if( index > 0){
-                      
-                    finalData.push({tank: tankList[i], uri: images[index]});
-                  } else {
-                    finalData.push({tank: tankList[i], uri: ''});
-                  }
-              }
-              console.log(finalData);
-              setData(finalData);
-              console.log("FORTNITE BALLS");
-              console.log(finalData)
-          },
-      })
+
+          
+                let finalData:{tank: any, uri: string}[] = [];
+                console.log(images);
+                for(let i = 0; i < tankList.length; i++){
+                    const index = images.indexOf(tankList[i].imageURI)
+                    // console.log("INDEX: " + index);
+                    // console.log(tankList[i].imageURI);
+                    
+                    if( index > 0){
+                        console.log("PUSHING URI")
+                        console.log(tankList[i].imageURI);
+                      finalData.push({tank: tankList[i], uri: images[index]});
+                    } else {
+                      finalData.push({tank: tankList[i], uri: ''});
+                    }
+                }
+                setData(finalData);
+      
+            },
+        })
+        try{
+          await  fetchData();
+        }catch(error){
+          Alert.alert("Error Fetching Data", error.message);
+        }
+        console.log("DATA")
+        console.log(data);
       setLoading(false)
       return () => subscriber();
-    }
-    try{
-      fetchData();
-    }catch(error){
-      Alert.alert("Error Fetching Data", error.message);
-    }
-  }, [])
+      }
+  },[])
 
   useEffect(() => {
     if(loading){
@@ -294,7 +258,7 @@ const MyTanks = () => {
   
   
   return (
-    <TouchableWithoutFeedback disabled={loading} onPress={()=> {
+    <TouchableWithoutFeedback  onPress={()=> {
       if(isAddingTank){
         closeAllDropDowns();
         Keyboard.dismiss();
@@ -496,15 +460,16 @@ const MyTanks = () => {
               <View  style={styles.card} key={tank.tank.id}>
                 <TouchableOpacity onPress={()=> toggleExpanded(tank.tank.id)}>
                   <View className='flex flex-row justify-between'>
-                  <Text className='text-2xl items-center font-semibold text-black pt-4 pb-4 font-psemibold '>{tank.tank.name}</Text>
-                  <SimpleLineIcons style={{marginRight:15, verticalAlign:'middle'}}name={expanded && currentID === tank.tank.id ? "arrow-down":"arrow-left"} size={24} color="black" />
+                    <Text className='text-2xl items-center font-semibold text-black pt-4 pb-4 font-psemibold '>{tank.tank.name}</Text>
+                    <SimpleLineIcons style={{marginRight:15, verticalAlign:'middle'}}name={expanded && currentID === tank.tank.id ? "arrow-down":"arrow-left"} size={24} color="black" />
                   </View>
                   {expanded && currentID === tank.tank.id ? (
                     <View className='flex flex-col items-start mb-4'>
                       <Text>{tank.tank.name}</Text>
                       <Text>Tank Size: {tank.tank.size}{tank.tank.measurmentUnit}</Text>
                       <Text>Shrimps: {tank.tank.numberOfShrimps}</Text>
-                      <Text>URI: {tank.tank.imageURI}</Text>
+                      <Text>TankURI: {tank.tank.imageURI}</Text>
+                      <Text>uri: {tank.uri}</Text>
                       {tank.uri.length > 0 ? (
                         <Image style={{height:25, width:25}} source={{uri:tank.uri}}/>
                       ):(null)}
