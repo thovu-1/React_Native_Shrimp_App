@@ -6,7 +6,15 @@
  For this project, I wanted to make an app that would help others in keeping their Neocaridina and Caridina shrimps.
  This is a Full Stack application that keeps track of your aquarium tanks, you can add specific shrimps to your aquairums.
  Upon signing up, the app will keep track of your profile which holds your aquariums and guide bookmarks.
-
+ ### Create User
+![](\assets\github_pics\create_user.png)
+ ### Login
+![](\assets\github_pics\login.png)
+ ### Creating a new tank
+![](\assets\github_pics\create_tank.png)
+ ### Viewing list of tanks
+ Currently data can be displayed, but I decided chosen how I want to display this yet.
+![](\assets\github_pics\your_tanks.png)
  ### Future Plans
  - Adding breeding tree with images and guides.
  - Implement more functionality for the profile section.
