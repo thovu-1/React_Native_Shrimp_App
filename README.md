@@ -7,9 +7,12 @@
  This is a Full Stack application that keeps track of your aquarium tanks, you can add specific shrimps to your aquairums.
  Upon signing up, the app will keep track of your profile which holds your aquariums and guide bookmarks.
  ### Sample Images
- Create User | Login | Create Tank | Your Tanks
- :----------:|:-----:|:-----------:|:----- ----:
- <img src="/assets/github_pics/create_user.png" width="100" height="250"/>|<img src="/assets/github_pics/login.png" width="100" height="250"/>|<img src="/assets/github_pics/create_tank.png" width="100" height="250"/>|Currently data can be displayed, but I decided chosen how I want to display this yet.<img src="/assets/github_pics/your_tanks.png" width="100" height="250"/>
+ |Create User | Login | Create Tank | Your Tanks|
+ |----------|-----|-----------|---------|
+ |<img src="/assets/github_pics/create_user.png" width="100" height="250"/>|<img src="/assets/github_pics/login.png" width="100" height="250"/>|<img src="/assets/github_pics/create_tank.png" width="100" height="250"/>|<img src="/assets/github_pics/your_tanks.png" width="100" height="250"/>|  
+ 
+ 
+ Currently data can be displayed for the 'Your Tanks' section, but I haven't decided  how I want to display this yet.
  ### Future Plans
  - Adding breeding tree with images and guides.
  - Implement more functionality for the profile section.
